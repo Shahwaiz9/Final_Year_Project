@@ -1,1 +1,0 @@
-Just run the end lines where we define funtions for uploading and import model and use it for predictions
