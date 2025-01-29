@@ -1,0 +1,10 @@
+streamlit
+tensorflow
+pillow
+numpy
+opencv-python
+rembg
+scikit-image
+matplotlib
+onnxruntime
+Pillow
