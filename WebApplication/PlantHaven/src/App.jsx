@@ -1,10 +1,17 @@
-function App() {
-  
-  return (
-   <>
-   <h1>PlantHaven</h1>
-  </>
-  )
-}
+import React from "react";
+import TopNavbar from "./components/TopNavbar";
+import SimpleFooter from "./components/SimpleFooter";
+import MainCarousel from "./components/MainCarousel";
 
-export default App
+const App = () => {
+  return (
+    <div>
+      {/* <SideNavbar /> */}
+      <TopNavbar />
+      <MainCarousel />
+      <SimpleFooter />
+    </div>
+  );
+};
+
+export default App;
