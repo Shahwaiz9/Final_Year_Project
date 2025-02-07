@@ -5,12 +5,12 @@ import MainCarousel from "./components/MainCarousel";
 
 const App = () => {
   return (
-    <div>
-      {/* <SideNavbar /> */}
+    <>
+      {/* <SideNavbar />  this is working*/}
       <TopNavbar />
       <MainCarousel />
       <SimpleFooter />
-    </div>
+    </>
   );
 };
 
