@@ -8,6 +8,7 @@ from 'react-router-dom'
 import Login from './components/LoginPage/Login.jsx'
 import SignupPage from './components/SignupPage/SignupPage.jsx'
 import MainCarousel from './components/MainCarousel.jsx'
+import VendorSignup from './components/SignupPage/VendorSignup.jsx'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -15,9 +16,10 @@ const router = createBrowserRouter(
     <Route path="/" element={<App/>}>
     <Route path='' element={<MainCarousel/>}></Route>
     </Route>
-    
+
      <Route path="login" element={<Login />} />
-     <Route path="signup" element={<SignupPage />} />
+     <Route path="signup/user" element={<SignupPage />} />
+     <Route path="signup/vendor" element={<VendorSignup />} />
   </>
   )
 )

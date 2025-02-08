@@ -1,9 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { FaEnvelope, FaLock } from "react-icons/fa";
-import "../LoginPage/Login.css"
+import { FaEnvelope, FaLock, FaUser, FaStore } from "react-icons/fa";
 
-export default function Login() {
+export default function VendorSignup() {
   return (
     <div
       className="h-screen flex justify-center items-center bg-cover bg-center bg-no-repeat p-4"
@@ -13,10 +12,34 @@ export default function Login() {
                       hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md">
         
         <h1 className="text-4xl text-white font-bold text-center mb-6 drop-shadow-md">
-          Login
+          Vendor Signup
         </h1>
 
         <form className="flex flex-col gap-6">
+          <div className="relative w-full">
+            <FaUser className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              required
+              className="w-full py-3 pl-12 pr-4 bg-transparent text-white rounded-lg border border-gray-400 
+                         focus:border-blue-400 outline-none transition-all duration-300 focus:ring-2 
+                         focus:ring-blue-300 placeholder-gray-400"
+              placeholder="Your Name"
+            />
+          </div>
+          
+          <div className="relative w-full">
+            <FaStore className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              required
+              className="w-full py-3 pl-12 pr-4 bg-transparent text-white rounded-lg border border-gray-400 
+                         focus:border-blue-400 outline-none transition-all duration-300 focus:ring-2 
+                         focus:ring-blue-300 placeholder-gray-400"
+              placeholder="Store Name"
+            />
+          </div>
+          
           <div className="relative w-full">
             <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -43,20 +66,20 @@ export default function Login() {
 
           <button
             type="submit"
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold 
-                       transition-all duration-300 ease-in-out shadow-md hover:shadow-lg hover:shadow-blue-500/30 button"
+            className="w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-lg font-semibold 
+                       transition-all duration-300 ease-in-out shadow-md hover:shadow-lg hover:shadow-green-500/30 button"
           >
-            Login
+            Signup as Vendor
           </button>
 
           <p className="text-center text-slate-300">
-            Don't have an account?
+            Already have an account?
             <Link
-              to="/signup/user"
+              to="/login"
               className="text-blue-300 hover:text-blue-400 font-medium ml-1 underline-offset-4 
                          hover:underline transition-colors duration-200 color"
             >
-              Signup
+              Login
             </Link>
           </p>
         </form>

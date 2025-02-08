@@ -7,3 +7,6 @@
   .color{
       color: #26A66b ;
   }
+  .color:hover{
+    color: #1A4848 ;
+}
