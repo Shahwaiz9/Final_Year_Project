@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Link } from "react-router-dom"; // Import Link from react-router-dom
 
 const MainCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -8,24 +9,27 @@ const MainCarousel = () => {
   const slides = [
     {
       id: 1,
-      title: "Discover Nature's Beauty",
-      buttonText: "Explore Collection",
+      title: "AI Powered Disease Detection",
+      buttonText: "Detect Disease",
       image:
-        "https://images.unsplash.com/photo-1470246973918-29a93221c455?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80",
+        "https://sharadpawaragricollege.com/wp-content/uploads/2023/05/agricultural-1-1536x864.jpg",
+      path: "/detect-disease", // Add path for this slide
     },
     {
       id: 2,
-      title: "Bring Life Indoors",
-      buttonText: "Shop Now",
+      title: "A vast MarketPlace for all your Plantcare needs",
+      buttonText: "Visit MarketPlace",
       image:
-        "https://images.unsplash.com/photo-1484154218962-a197022b5858?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80",
+        "https://www.shutterstock.com/shutterstock/photos/2288610413/display_1500/stock-photo-flower-shop-with-decor-augsburg-in-the-city-castrop-rauxel-germany-2288610413.jpg",
+      path: "/shop", // Add path for this slide
     },
     {
       id: 3,
-      title: "Create Your Green Space",
-      buttonText: "Get Started",
+      title: "Become a Vendor",
+      buttonText: "Join Us",
       image:
-        "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80",
+        "https://www.shutterstock.com/shutterstock/photos/2412962849/display_1500/stock-photo-local-farmers-managing-a-family-business-offering-sustainable-farm-products-for-sale-portrait-of-2412962849.jpg",
+      path: "/get-started", // Add path for this slide
     },
   ];
 
@@ -65,7 +69,7 @@ const MainCarousel = () => {
   };
 
   return (
-    <div className="relative mt-24 h-[500px] md:h-[650px] w-full overflow-hidden">
+    <div className="relative h-[500px] md:h-[730px] w-full overflow-hidden">
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentSlide}
@@ -85,17 +89,20 @@ const MainCarousel = () => {
 
           <div className="absolute inset-0 bg-black/30 flex items-center justify-center">
             <div className="text-center space-y-6">
-              <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
+              <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg max-w-[70%] mx-auto">
                 {slides[currentSlide].title}
               </h1>
-              <button
-                className="bg-white/20 backdrop-blur-sm border-2 border-white/30 hover:border-white/50 
+              {/* Wrap the button with Link */}
+              <Link to={slides[currentSlide].path}>
+                <button
+                  className="bg-white/20 backdrop-blur-sm border-2 border-white/30 hover:border-white/50 
                            text-white px-8 py-3 rounded-full text-lg md:text-xl 
                            transition-all duration-300 transform hover:scale-105 
                            hover:bg-white/30 shadow-lg hover:shadow-xl"
-              >
-                {slides[currentSlide].buttonText}
-              </button>
+                >
+                  {slides[currentSlide].buttonText}
+                </button>
+              </Link>
             </div>
           </div>
         </motion.div>
@@ -118,16 +125,16 @@ const MainCarousel = () => {
       {/* Navigation Arrows */}
       <button
         onClick={prevSlide}
-        className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 p-3 rounded-full 
-                 transition-colors duration-300"
+        className="absolute left-4 top-1/2 bg-white/50 hover:bg-white/70 p-3 pt-2 rounded-full 
+                 transition-colors duration-300 text-xl"
         aria-label="Previous slide"
       >
         ←
       </button>
       <button
         onClick={nextSlide}
-        className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 p-3 rounded-full 
-                 transition-colors duration-300"
+        className="absolute right-4 top-1/2 bg-white/50 hover:bg-white/70 p-3 pt-2 rounded-full 
+                 transition-colors duration-300 text-xl"
         aria-label="Next slide"
       >
         →

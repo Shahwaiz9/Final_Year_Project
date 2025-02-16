@@ -1,9 +1,17 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
-import { Container, Card, CardContent, Typography, Button, TextField, Box } from "@mui/material";
+import {
+  Container,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  TextField,
+  Box,
+} from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
-const ImageChatbot = ({ Header, Footer }) => {
+const ImageChatbot = () => {
   const [image, setImage] = useState(null);
   const [response, setResponse] = useState("");
 
@@ -17,9 +25,10 @@ const ImageChatbot = ({ Header, Footer }) => {
   };
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      {Header && <Header />} {/* Render Header if provided */}
-      <Container maxWidth="sm" sx={{ mt: 20, mb:20 }}>
+    <div
+      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
+    >
+      <Container maxWidth="sm" sx={{ mt: 20, mb: 20 }}>
         <Card sx={{ p: 3, textAlign: "center" }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>
@@ -44,7 +53,12 @@ const ImageChatbot = ({ Header, Footer }) => {
             </label>
             {image && (
               <Box sx={{ mt: 2 }}>
-                <img src={image} alt="Uploaded" width="100%" style={{ borderRadius: 8 }} />
+                <img
+                  src={image}
+                  alt="Uploaded"
+                  width="100%"
+                  style={{ borderRadius: 8 }}
+                />
               </Box>
             )}
             <TextField
@@ -60,7 +74,6 @@ const ImageChatbot = ({ Header, Footer }) => {
           </CardContent>
         </Card>
       </Container>
-      {Footer && <Footer />} {/* Render Footer if provided */}
     </div>
   );
 };
@@ -70,4 +83,3 @@ ImageChatbot.propTypes = {
 };
 
 export default ImageChatbot;
-
