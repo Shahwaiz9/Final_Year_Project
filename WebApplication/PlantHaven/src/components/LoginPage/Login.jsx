@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import "../LoginPage/Login.css"
+import "./Login.css";
 
 export default function Login() {
   return (
@@ -9,9 +9,10 @@ export default function Login() {
       className="h-screen flex justify-center items-center bg-cover bg-center bg-no-repeat p-4"
       style={{ backgroundImage: "url('/src/assets/loginbg.jpg')" }}
     >
-      <div className="border border-gray-300 rounded-2xl p-10 shadow-2xl backdrop-blur-lg bg-white/10 
-                      hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md">
-        
+      <div
+        className="border border-gray-300 rounded-2xl p-10 shadow-2xl backdrop-blur-lg bg-white/10 
+                      hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md"
+      >
         <h1 className="text-4xl text-white font-bold text-center mb-6 drop-shadow-md">
           Login
         </h1>
