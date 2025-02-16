@@ -3,13 +3,15 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
 import AuthRouter from "./routes/AuthRouter.js";
+import dotenv from "dotenv";
 
 const app = express();
+dotenv.config();
 
 const dbconnect = async () => {
   const connection = await mongoose
     .connect(
-      "mongodb+srv://dawood:03348757377d@cluster0.nlusybm.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
+      "mongodb+srv://dawood:03348757377d@cluster0.nlusybm.mongodb.net/PlantHaven?retryWrites=true&w=majority&appName=Cluster0"
     )
     .then(() => {
       console.log("connected to database");
