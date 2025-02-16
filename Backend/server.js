@@ -1,5 +1,8 @@
 import express from "express";
 import mongoose from "mongoose";
+import bodyParser from "body-parser";
+import cors from "cors";
+import AuthRouter from "./routes/AuthRouter.js";
 
 const app = express();
 
@@ -17,9 +20,14 @@ const dbconnect = async () => {
 };
 
 dbconnect().then(() => {
+  app.use(bodyParser.json());
+  app.use(cors());
+
   app.get("/", (req, res) => {
     res.send("Server is running");
   });
+
+  app.use("/auth", AuthRouter);
 
   app.listen(5000, () => {
     console.log("Server is running on port 5000");
