@@ -10,7 +10,7 @@ import {
 } from "react-router-dom";
 import Login from "./components/LoginPage/Login.jsx";
 import SignupPage from "./components/SignupPage/SignupPage.jsx";
-import MainCarousel from "./components/MainCarousel.jsx";
+import Homepage from "./components/HomePage/homepage.jsx";
 import VendorSignup from "./components/SignupPage/VendorSignup.jsx";
 import Modelpage from "./components/ModelPage/Modelpage.jsx";
 import TopNavbar from "./components/TopNavbar.jsx";
@@ -19,7 +19,7 @@ const router = createBrowserRouter(
   createRoutesFromElements(
     <>
       <Route path="/" element={<App />}>
-        <Route path="" element={<MainCarousel />}></Route>
+        <Route path="" element={<Homepage />}></Route>
         <Route path="model" element={<Modelpage />} />
       </Route>
       <Route path="login" element={<Login />} />
