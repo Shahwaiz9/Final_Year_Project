@@ -14,12 +14,26 @@ router.post("/signup/user", signupValidation, async (req, res) => {
     const { name, email, password } = req.body;
     const User = await user.findOne({ email });
     if (User) return res.status(400).json({ message: "Email already exists" });
+
     const newuser = new user({ name, email, password });
     newuser.password = await bcrypt.hash(password, 10);
     await newuser.save();
-    res.status(201).json({ message: "User created successfully" });
+
+    const jwtToken = jwt.sign(
+      { email: newuser.email, _id: newuser._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      jwtToken,
+      email,
+      name: newuser.name,
+    });
   } catch (e) {
-    res.status(500).json({ message: "internal server error", success: true });
+    res.status(500).json({ message: "Internal server error", success: false });
   }
 });
 
