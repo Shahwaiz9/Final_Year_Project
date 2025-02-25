@@ -1,6 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import AIPlant from "../assets/AIPlant.png";
+import MarketPlace from "../assets/Marketplace.jpeg";
+import Vendor from "../assets/Vendor.png";
 
 const MainCarousel = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -11,25 +14,22 @@ const MainCarousel = () => {
       id: 1,
       title: "AI Powered Disease Detection",
       buttonText: "Detect Disease",
-      image:
-        "https://sharadpawaragricollege.com/wp-content/uploads/2023/05/agricultural-1-1536x864.jpg",
-      path: "/detect-disease", // Add path for this slide
+      image: AIPlant,
+      path: "/model", // Add path for this slide
     },
     {
       id: 2,
       title: "A vast MarketPlace for all your Plantcare needs",
       buttonText: "Visit MarketPlace",
-      image:
-        "https://www.shutterstock.com/shutterstock/photos/2288610413/display_1500/stock-photo-flower-shop-with-decor-augsburg-in-the-city-castrop-rauxel-germany-2288610413.jpg",
+      image: MarketPlace,
       path: "/shop", // Add path for this slide
     },
     {
       id: 3,
       title: "Become a Vendor",
       buttonText: "Join Us",
-      image:
-        "https://www.shutterstock.com/shutterstock/photos/2412962849/display_1500/stock-photo-local-farmers-managing-a-family-business-offering-sustainable-farm-products-for-sale-portrait-of-2412962849.jpg",
-      path: "/get-started", // Add path for this slide
+      image: Vendor,
+      path: "/signup/vendor", // Add path for this slide
     },
   ];
 

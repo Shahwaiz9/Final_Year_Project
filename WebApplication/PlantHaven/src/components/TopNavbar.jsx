@@ -4,7 +4,7 @@ import logo from "../assets/PlantHavenLogo.png";
 
 const navItems = [
   { id: 1, text: "Home", path: "/" },
-  { id: 2, text: "Detect Disease", path: "/company" },
+  { id: 2, text: "Detect Disease", path: "/model" },
   { id: 3, text: "MarketPlace", path: "/marketplace" },
   { id: 4, text: "Contact Us", path: "/contact" },
   { id: 5, text: "LogIn", path: "/login" },
@@ -54,11 +54,11 @@ const TopNavbar = () => {
               <li key={item.id} className="list-none">
                 <Link
                   to={item.path}
-                  className="px-6 py-3 rounded-lg hover:bg-[#276749] 
+                  className="px-5 py-2.5 rounded-lg hover:bg-[#276749] 
                            transition-all duration-300 cursor-pointer
-                           border-b-2 border-transparent
+                           border-b-3 border-transparent
                            hover:border-[#68d391] font-medium
-                           text-white hover:text-[#c6f6d5]
+                           text-black hover:text-[#c6f6d5]
                            focus:outline-none focus-visible:ring-2 
                            focus-visible:ring-[#68d391]"
                 >
@@ -131,9 +131,9 @@ const TopNavbar = () => {
             <Link
               key={item.id}
               to={item.path}
-              className="text-2xl font-medium text-white hover:text-[#c6f6d5] 
-                       transition-colors duration-300 py-3 px-6 rounded-lg
-                       hover:bg-[#276749] cursor-pointer
+              className="text-2xl font-medium text-gray-900 hover:text-[#c6f6d5] border-b-3 border-transparent
+                       transition-colors duration-300 py-2.5 px-5 rounded-lg
+                       hover:bg-[#276749] hover:border-[#68d391] cursor-pointer
                        focus:outline-none focus-visible:ring-2 
                        focus-visible:ring-[#68d391]"
               onClick={closeMobileMenu}
