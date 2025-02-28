@@ -37,7 +37,7 @@ export const vendorSignupValidation = (req, res, next) => {
     password: joi.string().min(4).max(100).required(),
     contact: joi
       .string()
-      .pattern(/^03[0-9]{8}$/)
+      .pattern(/^03[0-9]{9}$/)
       .required(),
   });
 

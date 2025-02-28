@@ -21,7 +21,7 @@ const vendorSchema = mongoose.Schema({
   contact: {
     type: String,
     required: true,
-    match: /^03[0-9]{8}$/,
+    match: /^03[0-9]{9}$/,
   },
   role: {
     type: String,

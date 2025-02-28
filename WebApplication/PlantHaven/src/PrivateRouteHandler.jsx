@@ -1,23 +1,10 @@
-import React, { useEffect } from 'react'
-import { useLocation, useNavigate } from 'react-router'
+import React from 'react'
+import { Navigate, Outlet } from 'react-router'
 
-function PrivateRouteHandler({setIsAuth}) {
-    const location=useLocation();
-    const navigate=useNavigate();
-    
-    useEffect(()=>{
-        if(localStorage.getItem('authToken')){
-            setIsAuth(true);
-            if(location.pathname==='/login' ||location.pathname==='/signup/user' ||location.pathname==='/login/user'){
-                navigate('/',{replace:false})
-            }
-        }
-
-    },[location,navigate,setIsAuth]);
-
-  return (
-    null
-  )
+function PrivateRouteHandler() {
+  const token=localStorage.getItem('authToken')
+  
+  return token?<Outlet/>:<Navigate to="login"/>
 }
 
 export default PrivateRouteHandler
