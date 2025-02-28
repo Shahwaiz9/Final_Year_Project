@@ -32,7 +32,7 @@ export default function Login() {
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify({ name:data.name,email, role: "user" }));
+      localStorage.setItem("user", JSON.stringify({ name:data.name,email, role: data.role }));
       localStorage.setItem("authToken", data.jwtToken);
 
       setTimeout(() => {
