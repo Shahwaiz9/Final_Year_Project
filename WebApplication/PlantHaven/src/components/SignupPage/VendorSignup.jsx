@@ -42,9 +42,8 @@ export default function VendorSignup() {
       localStorage.setItem("user", JSON.stringify({ CompanyName, email, role: "vendor" }));
       localStorage.setItem("authToken", data.jwtToken);
 
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
+      navigate("/vendor-homepage");
+      
     } catch (e) {
       console.error(e);
       setErrorMsg("An error occurred. Please try again later.");
