@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
 import AuthRouter from "./routes/AuthRouter.js";
+import productRouter from "./routes/productRouter.js";
 import dotenv from "dotenv";
 
 const app = express();
@@ -30,6 +31,7 @@ dbconnect().then(() => {
   });
 
   app.use("/auth", AuthRouter);
+  app.use("/product", productRouter);
 
   app.listen(5000, () => {
     console.log("Server is running on port 5000");

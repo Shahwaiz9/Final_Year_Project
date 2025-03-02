@@ -1,0 +1,143 @@
+import express from "express";
+import Authenticated from "../middlewares/jwtAuth.js";
+import product from "../models/product.js";
+
+const router = express.Router();
+
+router.get("/", async (req, res) => {
+  try {
+    const products = await product.find();
+    res.status(200).json({ success: true, products });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/:id", async (req, res) => {
+  try {
+    const Product = await product.findById(req.params.id);
+    if (!Product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    res.status(200).json({ success: true, Product });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.post("/add", Authenticated, async (req, res) => {
+  try {
+    if (req.user.role !== "vendor") {
+      return res.status(403).json({ message: "Only vendors can add products" });
+    }
+
+    const { productname, description, price, formula, type, keywords, image } =
+      req.body;
+    const newProduct = new product({
+      productname,
+      vendor: req.user._id,
+      description,
+      price,
+      formula,
+      type,
+      keywords,
+      image,
+    });
+
+    await newProduct.save();
+    res.status(201).json({
+      success: true,
+      message: "Product added successfully",
+      product: newProduct,
+    });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.delete("/:id", Authenticated, async (req, res) => {
+  try {
+    if (req.user.role !== "vendor") {
+      return res
+        .status(403)
+        .json({ message: "Only vendors can delete products" });
+    }
+
+    const Product = await product.findById(req.params.id);
+    if (!Product) return res.status(404).json({ message: "Product not found" });
+
+    if (Product.vendor.toString() !== req.user._id) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this product" });
+    }
+
+    await product.findByIdAndDelete(req.params.id);
+    res
+      .status(200)
+      .json({ success: true, message: "Product deleted successfully" });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+import mongoose from "mongoose";
+
+router.put("/:id", Authenticated, async (req, res) => {
+  try {
+    if (req.user.role !== "vendor") {
+      return res
+        .status(403)
+        .json({
+          success: false,
+          message: "Only vendors can Update the products",
+        });
+    }
+    const Product = await product.findById(req.params.id);
+    if (!Product)
+      return res.status(404).json({ message: "Product does not exist" });
+
+    if (Product.vendor.toString() !== req.user._id) {
+      return res.status(403).json("Unauthorized to update this product");
+    }
+
+    const updatedFields = [
+      "productname",
+      "description",
+      "price",
+      "formula",
+      "type",
+      "keywords",
+      "image",
+    ];
+    const updateData = {};
+
+    updatedFields.forEach((field) => {
+      if (field in req.body) {
+        if (req.body[field] !== undefined) updateData[field] = req.body[field];
+      }
+    });
+
+    const updatedProduct = await product.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    res
+      .status(200)
+      .json({
+        success: true,
+        message: "Product updated successfully",
+        product: updatedProduct,
+      });
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+});
+
+export default router;

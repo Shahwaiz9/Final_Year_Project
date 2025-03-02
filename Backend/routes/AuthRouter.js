@@ -23,7 +23,12 @@ router.post("/signup/user", signupValidation, async (req, res) => {
     await newuser.save();
 
     const jwtToken = jwt.sign(
-      { email: newuser.email, _id: newuser._id },
+      {
+        email: newuser.email,
+        _id: newuser._id,
+        name: newuser.name,
+        role: newuser.role,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -53,7 +58,7 @@ router.post("/login/user", loginValidation, async (req, res) => {
       return res.status(403).json({ message: "Invalid password" });
 
     const jwtToken = jwt.sign(
-      { email: User.email, _id: User._id },
+      { email: User.email, _id: User._id, name: User.name, role: User.role },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -89,7 +94,12 @@ router.post("/signup/vendor", vendorSignupValidation, async (req, res) => {
     await newVendor.save();
 
     const jwtToken = jwt.sign(
-      { email: newVendor.email, _id: newVendor._id },
+      {
+        email: newVendor.email,
+        _id: newVendor._id,
+        role: newVendor.role,
+        CompanyName: newVendor.CompanyName,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
@@ -120,7 +130,12 @@ router.post("/login/vendor", vendorLoginValidation, async (req, res) => {
       return res.status(403).json({ message: "Invalid password" });
 
     const jwtToken = jwt.sign(
-      { email: Vendor.email, _id: Vendor._id },
+      {
+        email: Vendor.email,
+        _id: Vendor._id,
+        role: Vendor.role,
+        CompanyName: Vendor.CompanyName,
+      },
       process.env.JWT_SECRET,
       { expiresIn: "24h" }
     );
