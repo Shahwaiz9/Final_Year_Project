@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { Link, replace, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock } from "react-icons/fa";
-import "../LoginPage/Login.css"
+import "../LoginPage/Login.css";
 
 export default function Login() {
   const [userData, setUserData] = useState({ email: "", password: "" });
-  const [role, setRole] = useState("user"); 
+  const [role, setRole] = useState("user");
   const [errorMsg, setErrorMsg] = useState("");
   const navigate = useNavigate();
 
@@ -20,31 +20,33 @@ export default function Login() {
     const { email, password } = userData;
 
     try {
-      const response = await fetch(
-        `http://localhost:5000/auth/login/${role}`, 
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
-        }
-      );
+      const response = await fetch(`http://localhost:5000/auth/login/${role}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
 
       const data = await response.json();
 
       if (!response.ok) {
-        setErrorMsg(data.message || "Login failed. Please check your credentials.");
+        setErrorMsg(
+          data.message || "Login failed. Please check your credentials."
+        );
         return;
       }
 
-      localStorage.setItem("user", JSON.stringify({ name: data.name, email, role: data.role }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ name: data.name, email, role: data.role })
+      );
       localStorage.setItem("authToken", data.jwtToken);
-      
+
       window.dispatchEvent(new Event("storage"));
-      setTimeout(()=>{
+      setTimeout(() => {
         navigate(role === "user" ? "/" : "/vendor-homepage");
-      },1000)
+      }, 1000);
     } catch (error) {
       console.error(error);
       setErrorMsg("An error occurred. Please try again later.");
@@ -56,20 +58,19 @@ export default function Login() {
       className="h-screen flex justify-center items-center bg-cover bg-center bg-no-repeat p-4"
       style={{ backgroundImage: "url('/src/assets/loginbg.jpg')" }}
     >
-      <div className="border border-gray-300 rounded-2xl p-10 shadow-2xl backdrop-blur-lg bg-white/10 
-                      hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md">
-        
+      <div
+        className="border border-gray-300 rounded-2xl p-10 shadow-2xl backdrop-blur-lg bg-white/10 
+                      hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md"
+      >
         <h1 className="text-4xl text-white font-bold text-center mb-6 drop-shadow-md">
           Login
         </h1>
 
         {/* Toggle Buttons for User and Vendor */}
-          <div className="flex mb-6 rounded-lg overflow-hidden border border-gray-400 w-full">
+        <div className="flex mb-6 rounded-lg overflow-hidden border border-gray-400 w-full">
           <button
             className={`flex-1 py-2 text-lg font-medium transition-all duration-300 ${
-              role === "user"
-                ? "bg-black text-white"
-                : "bg-gray-300 text-black"
+              role === "user" ? "bg-black text-white" : "bg-gray-300 text-black"
             }`}
             onClick={() => setRole("user")}
           >
@@ -86,7 +87,6 @@ export default function Login() {
             Login as Vendor
           </button>
         </div>
-
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-6">
           <div className="relative w-full">
@@ -117,7 +117,9 @@ export default function Login() {
             />
           </div>
 
-          {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+          {errorMsg && (
+            <p className="text-red-500 text-sm text-center">{errorMsg}</p>
+          )}
 
           <button
             type="submit"
@@ -130,7 +132,7 @@ export default function Login() {
           <p className="text-center text-slate-300">
             Don't have an account?
             <Link
-              to={`/signup/${role}`} 
+              to={`/signup/${role}`}
               className="text-blue-300 hover:text-blue-400 font-medium ml-1 underline-offset-4 
                          hover:underline transition-colors duration-200 color"
             >
