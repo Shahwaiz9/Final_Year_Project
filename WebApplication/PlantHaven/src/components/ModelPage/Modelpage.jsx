@@ -1,5 +1,4 @@
 import { useState } from "react";
-import PropTypes from "prop-types";
 import {
   Container,
   Card,
@@ -8,32 +7,70 @@ import {
   Button,
   TextField,
   Box,
+  CircularProgress,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 
 const ImageChatbot = () => {
   const [image, setImage] = useState(null);
+  const [preview, setPreview] = useState(null);
   const [response, setResponse] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     if (file) {
-      setImage(URL.createObjectURL(file));
-      // Simulate chatbot response (replace with API call)
-      setResponse("Processing image and generating response...");
+      setImage(file);
+      setPreview(URL.createObjectURL(file));
+      setResponse("");
     }
   };
 
+  const handleSubmit = async () => {
+    if (!image) {
+      alert("Please upload an image first.");
+      return;
+    }
+  
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("image", image);
+  
+    try {
+      const res = await fetch("http://localhost:5000/predict", {
+        method: "POST",
+        body: formData,
+      });
+  
+      const data = await res.json();
+      console.log("Received data:", data); // Debugging
+  
+      if (Array.isArray(data.prediction) && data.prediction.length > 1) {
+        const label = data.prediction[0].label || "Unknown";
+        const confidence = data.prediction[1] || "Confidence unavailable";
+        setResponse(`${label}, ${confidence}`);
+      } else {
+        setResponse("Invalid response format.");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      setResponse("Error processing the image.");
+    }
+  
+    setLoading(false);
+  };
+  
+  
+  
   return (
-    <div
-      style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}
-    >
-      <Container maxWidth="sm" sx={{ mt: 20, mb: 20 }}>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <Container maxWidth="sm" sx={{ mt: 10, mb: 10 }}>
         <Card sx={{ p: 3, textAlign: "center" }}>
           <CardContent>
             <Typography variant="h5" gutterBottom>
-              Upload Image & Get Chatbot Response
+              Upload Image & Get AI Response
             </Typography>
+
             <input
               accept="image/*"
               type="file"
@@ -51,16 +88,23 @@ const ImageChatbot = () => {
                 Upload Image
               </Button>
             </label>
-            {image && (
+
+            {preview && (
               <Box sx={{ mt: 2 }}>
-                <img
-                  src={image}
-                  alt="Uploaded"
-                  width="100%"
-                  style={{ borderRadius: 8 }}
-                />
+                <img src={preview} alt="Uploaded" width="100%" style={{ borderRadius: 8 }} />
               </Box>
             )}
+
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleSubmit}
+              sx={{ mt: 2 }}
+              disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} color="inherit" /> : "Get Prediction"}
+            </Button>
+
             <TextField
               fullWidth
               multiline
@@ -68,7 +112,7 @@ const ImageChatbot = () => {
               variant="outlined"
               margin="normal"
               value={response}
-              placeholder="Chatbot response will appear here..."
+              placeholder="AI response will appear here..."
               disabled
             />
           </CardContent>
@@ -76,10 +120,6 @@ const ImageChatbot = () => {
       </Container>
     </div>
   );
-};
-ImageChatbot.propTypes = {
-  Header: PropTypes.element,
-  Footer: PropTypes.element,
 };
 
 export default ImageChatbot;
