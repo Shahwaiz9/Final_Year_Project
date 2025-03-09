@@ -4,7 +4,7 @@ import product from "../models/product.js";
 
 const router = express.Router();
 
-router.get("/", async (req, res) => {
+router.get("/", Authenticated, async (req, res) => {
   try {
     const products = await product.find();
     res.status(200).json({ success: true, products });
@@ -13,7 +13,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {
+router.get("/:id", Authenticated, async (req, res) => {
   try {
     const Product = await product.findById(req.params.id);
     if (!Product) {
@@ -83,17 +83,13 @@ router.delete("/:id", Authenticated, async (req, res) => {
   }
 });
 
-import mongoose from "mongoose";
-
 router.put("/:id", Authenticated, async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
-      return res
-        .status(403)
-        .json({
-          success: false,
-          message: "Only vendors can Update the products",
-        });
+      return res.status(403).json({
+        success: false,
+        message: "Only vendors can Update the products",
+      });
     }
     const Product = await product.findById(req.params.id);
     if (!Product)
@@ -126,13 +122,36 @@ router.put("/:id", Authenticated, async (req, res) => {
       { new: true }
     );
 
-    res
+    res.status(200).json({
+      success: true,
+      message: "Product updated successfully",
+      product: updatedProduct,
+    });
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/search/:key", Authenticated, async (req, res) => {
+  try {
+    const products = await product.find({
+      $or: [
+        { productname: { $regex: req.params.key, $options: "i" } },
+        { description: { $regex: req.params.key, $options: "i" } },
+        { keywords: { $regex: req.params.key, $options: "i" } },
+      ],
+    });
+
+    if (!products)
+      return res
+        .status(403)
+        .json({ message: "No Relevant Products available" });
+
+    return res
       .status(200)
-      .json({
-        success: true,
-        message: "Product updated successfully",
-        product: updatedProduct,
-      });
+      .json({ success: true, message: "Search Results", products: products });
   } catch (e) {
     return res
       .status(500)

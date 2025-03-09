@@ -1,20 +1,13 @@
 import express from "express";
-import mongoose from "mongoose";
 import bodyParser from "body-parser";
 import cors from "cors";
 import AuthRouter from "./routes/AuthRouter.js";
 import productRouter from "./routes/productRouter.js";
 import ModelRoute from "./routes/ModelRoute.js";
 import dotenv from "dotenv";
-import multer from "multer";
 
 const app = express();
 dotenv.config();
-
-
-
-
-// Configure Multer for file uploads
 
 const dbconnect = async () => {
   const connection = await mongoose
@@ -28,18 +21,14 @@ const dbconnect = async () => {
       console.log("Failed to connect to database", err);
     });
 };
-app.use(cors());
+
 dbconnect().then(() => {
   app.use(bodyParser.json());
   app.use(cors());
 
-  app.get("/", (req, res) => {
-    res.send("Server is running");
-  });
-
   app.use("/auth", AuthRouter);
   app.use("/product", productRouter);
-  app.use("/predict", ModelRoute);
+
   app.listen(5000, () => {
     console.log("Server is running on port 5000");
   });
