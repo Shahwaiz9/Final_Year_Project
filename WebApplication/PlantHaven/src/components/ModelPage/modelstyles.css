@@ -1,0 +1,33 @@
+.background {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-image: url("C:\Users\shahw\Desktop\FYP\Final_Year_Project\WebApplication\PlantHaven\src\assets\AIPlant.png"); /* Replace with your image */
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  .card{
+    /* Apply Glassmorphism effect to the Card */
+
+    background: rgba(255, 255, 255, 0.2); /* Transparent white */
+    backdrop-filter: blur(10px); /* Blur effect */
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
+
+  }
+  /* Dark overlay to improve text readability */
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+  }
+  

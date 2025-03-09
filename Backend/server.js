@@ -5,6 +5,9 @@ import AuthRouter from "./routes/AuthRouter.js";
 import productRouter from "./routes/productRouter.js";
 import ModelRoute from "./routes/ModelRoute.js";
 import dotenv from "dotenv";
+import mongoose from "mongoose";
+
+
 
 const app = express();
 dotenv.config();
@@ -28,7 +31,7 @@ dbconnect().then(() => {
 
   app.use("/auth", AuthRouter);
   app.use("/product", productRouter);
-
+  app.use("/predict", ModelRoute);
   app.listen(5000, () => {
     console.log("Server is running on port 5000");
   });
