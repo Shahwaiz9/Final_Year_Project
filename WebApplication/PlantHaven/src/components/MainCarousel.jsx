@@ -69,7 +69,7 @@ const MainCarousel = () => {
   };
 
   return (
-    <div className="relative h-[500px] md:h-[730px] lg:h-screen w-full overflow-hidden">
+    <div className="relative h-[500px] md:h-[730px] w-full overflow-hidden">
       <AnimatePresence initial={false} custom={direction}>
         <motion.div
           key={currentSlide}

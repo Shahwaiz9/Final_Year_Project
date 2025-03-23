@@ -13,22 +13,9 @@ const CreateListing = () => {
   });
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState("");
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
-
-    if (name === "imageFile" && e.target.files[0]) {
-      const file = e.target.files[0];
-      setImageFile(file);
-
-      // Generate a preview URL for the selected file
-      const previewUrl = URL.createObjectURL(file);
-      setImagePreview(previewUrl);
-      return;
-    }
-
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
@@ -41,48 +28,23 @@ const CreateListing = () => {
     setMessage("");
 
     try {
-      // Validate required image upload
-      if (!imageFile) {
-        throw new Error("Please upload a product image");
-      }
-
-      // Step 1: Upload image to Cloudinary
-      const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${
-        import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "default_cloud_name"
-      }/upload`;
-      const cloudinaryFormData = new FormData();
-      cloudinaryFormData.append("file", imageFile);
-      cloudinaryFormData.append(
-        "upload_preset",
-        import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "default_preset"
-      );
-
-      const uploadResponse = await fetch(cloudinaryUrl, {
-        method: "POST",
-        body: cloudinaryFormData,
-      });
-
-      if (!uploadResponse.ok) {
-        throw new Error("Image upload failed");
-      }
-
-      const uploadData = await uploadResponse.json();
-      const imageUrl = uploadData.secure_url;
-
-      // Step 2: Submit product data with image URL
+      // Check if user is vendor
       const user = JSON.parse(localStorage.getItem("user"));
       if (!user || user.role !== "vendor") {
         throw new Error("Only vendors can create listings");
       }
 
+      // Get token from correct storage key
+      const authToken = localStorage.getItem("authToken");
+      if (!authToken) throw new Error("Authentication required");
+
       const productData = {
         ...formData,
-        image: imageUrl,
-        price: formData.price ? parseFloat(formData.price) : 0, // Default to 0 if empty
-        keywords: (formData.keywords || "").split(",").map((k) => k.trim()),
+        price: parseFloat(formData.price),
+        keywords: formData.keywords.split(",").map((k) => k.trim()),
       };
 
-      const authToken = localStorage.getItem("authToken");
+      // Use full API URL with port 5000
       const response = await fetch("http://localhost:5000/product/add", {
         method: "POST",
         headers: {
@@ -94,11 +56,9 @@ const CreateListing = () => {
 
       const data = await response.json();
 
-      if (!response.ok) {
+      if (!response.ok)
         throw new Error(data.message || "Failed to create product");
-      }
 
-      // Reset form
       setMessage("Product created successfully!");
       setFormData({
         productname: "",
@@ -107,11 +67,9 @@ const CreateListing = () => {
         formula: "NaN",
         type: "",
         isFeatured: false,
-        keywords: "", // Ensure reset to empty string
+        keywords: "",
         image: "",
       });
-      setImageFile(null);
-      setImagePreview("");
     } catch (error) {
       setMessage(error.message || "An error occurred");
     } finally {
@@ -284,34 +242,23 @@ const CreateListing = () => {
               />
             </div>
 
-            {/* Image Upload */}
+            {/* Image URL */}
             <div className="space-y-1.5">
               <label className="text-sm font-medium text-slate-700/90">
-                Product Image *
+                Image URL
               </label>
-              <div className="flex flex-col gap-2">
-                <input
-                  type="file"
-                  name="imageFile"
-                  accept="image/*"
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-2.5 rounded-lg border border-slate-200
-                        bg-white/90 backdrop-blur-sm focus:outline-none
-                        focus:border-teal-600 focus:ring-2 focus:ring-teal-100
-                        placeholder-slate-400 text-slate-800
-                        transition-all duration-200 shadow-sm"
-                />
-                {imagePreview && (
-                  <div className="mt-2 w-32 h-32 rounded-lg overflow-hidden border border-slate-200">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="object-cover w-full h-full"
-                    />
-                  </div>
-                )}
-              </div>
+              <input
+                type="url"
+                name="image"
+                value={formData.image}
+                onChange={handleChange}
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-200
+                      bg-white/90 backdrop-blur-sm focus:outline-none
+                      focus:border-teal-600 focus:ring-2 focus:ring-teal-100
+                      placeholder-slate-400 text-slate-800
+                      transition-all duration-200 shadow-sm"
+                placeholder="https://example.com/image.jpg"
+              />
             </div>
 
             {/* Keywords */}

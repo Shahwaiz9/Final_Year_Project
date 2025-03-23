@@ -14,7 +14,6 @@ import MainLayout from "./components/MainLayout.jsx";
 import PrivateRouteHandler from "./PrivateRouteHandler.jsx";
 import VendorHomePage from "./components/VendorPages/VendorHomePage.jsx";
 import CreateListing from "./components/VendorPages/CreateListing.jsx";
-import MarketPlace from "./components/MarketPlace/Marketplace.jsx";
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -71,7 +70,6 @@ const App = () => {
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Homepage />} />
                 <Route path="model" element={<Modelpage />} />
-                <Route path="marketplace" element={<MarketPlace />} />
                 <Route path="vendor-homepage" element={<Navigate to="/" />} />
               </Route>
             </>
