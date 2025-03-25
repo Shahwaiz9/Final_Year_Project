@@ -8,54 +8,47 @@ import axios from "axios";
 import dotenv from "dotenv";
 dotenv.config();
 
-
 // Load environment variables
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-
-
 // AI Prediction Endpoint
 router.post("/", upload.single("image"), async (req, res) => {
-
-    try {
-      if (!req.file) {
-        return res.status(400).json({ error: "No image uploaded" });
-      }
-  
-      // Read the uploaded image and convert to Blob
-      const imageBuffer = fs.readFileSync(req.file.path);
-      const imageBlob = new Blob([imageBuffer]);
-  
-      // Connect to Hugging Face API (Replace with your Gradio Space)
-      const client = await Client.connect("WhiteFrost99/Resnet-AI-PlantHaven");
-      const result = await client.predict("/predict", {
-        image: imageBlob,
-      });
-  
-      // Delete temporary file
-      fs.unlinkSync(req.file.path);
-  
-      // Send response to frontend
-      res.json({ prediction: result.data });
-  
-    } catch (error) {
-      console.error("Error:", error);
-      res.status(500).json({ error: "Internal Server Error" });
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: "No image uploaded" });
     }
-  });
 
+    // Read the uploaded image and convert to Blob
+    const imageBuffer = fs.readFileSync(req.file.path);
+    const imageBlob = new Blob([imageBuffer]);
 
-  // Groq API Config
+    // Connect to Hugging Face API (Replace with your Gradio Space)
+    const client = await Client.connect("WhiteFrost99/Resnet-AI-PlantHaven");
+    const result = await client.predict("/predict", {
+      image: imageBlob,
+    });
+
+    // Delete temporary file
+    fs.unlinkSync(req.file.path);
+
+    // Send response to frontend
+    res.json({ prediction: result.data });
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+// Groq API Config
 
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
 // Remedies Route
 router.post("/remedies", async (req, res) => {
-    const { disease } = req.body;
-    
+  const { disease } = req.body;
 
-    // Construct Prompt
-    const prompt = `
+  // Construct Prompt
+  const prompt = `
     Provide a structured and well-formatted response for the following plant disease:
 
 **Disease:** ${disease}  
@@ -110,25 +103,31 @@ Ensure the response follows this structured format with clear sections and bulle
 
     `;
 
-    try {
-        // Make API Request
-        const response = await axios.post(GROQ_URL, {
-            model: "llama-3.3-70b-versatile",
-            messages: [{ role: "user", content: prompt }]
-        }, {
-            headers: {
-                "Authorization": `Bearer ${GROQ_API_KEY}`,
-                "Content-Type": "application/json"
-            }
-        });
+  try {
+    // Make API Request
+    const response = await axios.post(
+      GROQ_URL,
+      {
+        model: "llama-3.3-70b-versatile",
+        messages: [{ role: "user", content: prompt }],
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
-        const result = response.data.choices[0].message.content;
-        res.json({ remedies: result });
-
-    } catch (error) {
-        console.error("Error fetching remedies:", error.response ? error.response.data : error.message);
-        res.status(500).json({ error: "Failed to get remedies from Groq API" });
-    }
+    const result = response.data.choices[0].message.content;
+    res.json({ remedies: result });
+  } catch (error) {
+    console.error(
+      "Error fetching remedies:",
+      error.response ? error.response.data : error.message
+    );
+    res.status(500).json({ error: "Failed to get remedies from Groq API" });
+  }
 });
 
-  export default router;
+export default router;
