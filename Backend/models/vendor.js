@@ -31,4 +31,13 @@ const vendorSchema = mongoose.Schema({
 
 const vendor = mongoose.model("vendors", vendorSchema);
 
+vendorSchema.post("save", async function (doc, next) {
+  try {
+    await VendorStats.create({ vendor: doc._id });
+    next();
+  } catch (error) {
+    next(error);
+  }
+});
+
 export default vendor;
