@@ -2,7 +2,7 @@ import express from "express";
 import Authenticated from "../middlewares/jwtAuth.js";
 import Order from "../models/orders.js";
 import VendorStats from "../models/vendorstats.js";
-import Product from "../models/products.js";
+import Product from "../models/product.js";
 
 const router = express.Router();
 
