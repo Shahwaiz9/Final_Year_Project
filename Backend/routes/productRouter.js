@@ -33,8 +33,16 @@ router.post("/add", Authenticated, async (req, res) => {
       return res.status(403).json({ message: "Only vendors can add products" });
     }
 
-    const { productname, description, price, formula, type, keywords, image } =
-      req.body;
+    const {
+      productname,
+      description,
+      price,
+      formula,
+      type,
+      keywords,
+      image,
+      quantity,
+    } = req.body;
     const newProduct = new product({
       productname,
       vendor: req.user._id,
@@ -44,6 +52,7 @@ router.post("/add", Authenticated, async (req, res) => {
       type,
       keywords,
       image,
+      quantity,
     });
 
     await newProduct.save();
@@ -107,6 +116,7 @@ router.put("/:id", Authenticated, async (req, res) => {
       "type",
       "keywords",
       "image",
+      "quantity",
     ];
     const updateData = {};
 

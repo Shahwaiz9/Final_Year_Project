@@ -37,6 +37,11 @@ let productSchema = mongoose.Schema({
   image: {
     type: String,
   },
+  quantity: {
+    type: Number,
+    required: true,
+    default: 1,
+  },
 });
 
 let product = mongoose.model("products", productSchema);
