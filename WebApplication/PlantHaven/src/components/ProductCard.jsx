@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 
 const dummyProducts = [
   {
@@ -52,6 +53,12 @@ const dummyProducts = [
 ];
 
 const ProductCard = ({ product }) => {
+  const navigate = useNavigate();
+
+  const handleOrderClick = () => {
+    navigate(`/product/${product._id}`);
+  };
+
   return (
     <div
       className="bg-white rounded-xl shadow-2xl hover:shadow-3xl transition-all 
@@ -60,11 +67,9 @@ const ProductCard = ({ product }) => {
                  bg-gradient-to-br from-white to-green-200/30 hover:bg-white
                  isolate flex flex-col h-full"
     >
-      {/* Gradient Border Effect */}
       <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-green-100/10 to-green-400/20 blur-sm group-hover:blur-md opacity-0 group-hover:opacity-100 transition-all pointer-events-none" />
 
-      {/* Image Section */}
-      <div className="relative h-56 overflow-hidden bg-slate-50 flex-shrink-0">
+      <div className="relative h-48 overflow-hidden bg-slate-50 flex-shrink-0">
         <div className="absolute inset-0 bg-[radial-gradient(#22d3ee12_1px,transparent_1px)] [background-size:16px_16px]" />
         <img
           src={product.image}
@@ -72,24 +77,23 @@ const ProductCard = ({ product }) => {
           className="relative z-10 w-full h-full object-contain transition-transform 
                    duration-300 group-hover:scale-105 mix-blend-multiply"
         />
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-slate-900/40 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-20 bg-gradient-to-t from-slate-900/40 to-transparent" />
       </div>
 
-      {/* Product Details */}
-      <div className="p-4 flex-1 flex flex-col">
-        <div className="flex-1 space-y-3">
-          <div className="space-y-2">
+      <div className="p-3 flex-1 flex flex-col">
+        <div className="flex-1 space-y-2">
+          <div className="space-y-1">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="text-md font-bold text-slate-900">
                 {product.productname}
               </h3>
               <span className="px-2 py-1 text-xs font-semibold bg-green-100 text-cyan-800 rounded-full">
                 {product.type}
               </span>
             </div>
-            <p className="text-sm text-slate-600 flex items-center gap-1">
+            <p className="text-xs text-slate-600 flex items-center gap-1">
               <svg
-                className="w-4 h-4 text-green-600"
+                className="w-3 h-3 text-green-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -108,10 +112,10 @@ const ProductCard = ({ product }) => {
           </div>
 
           {product.formula !== "NaN" && (
-            <div className="p-2 bg-green-100/85 rounded-lg border border-green-100">
-              <div className="flex items-center gap-2 text-sm">
+            <div className="p-1.5 bg-green-100/85 rounded-lg border border-green-100">
+              <div className="flex items-center gap-1.5 text-sm">
                 <svg
-                  className="w-4 h-4 text-green-700"
+                  className="w-3 h-3 text-green-700"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -123,43 +127,46 @@ const ProductCard = ({ product }) => {
                     d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"
                   />
                 </svg>
-                <p className="font-mono text-sm text-green-900 font-medium">
+                <p className="font-mono text-xs text-green-900 font-medium">
                   {product.formula}
                 </p>
               </div>
             </div>
           )}
 
-          <p className="text-sm text-slate-700 leading-relaxed line-clamp-2">
+          <p className="text-xs text-slate-700 leading-relaxed line-clamp-2">
             {product.description}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2 mt-2">
-          {product.keywords.map((keyword) => (
-            <span
-              key={keyword}
-              className="px-2 py-1 text-xs bg-white border border-slate-200 
-                       text-slate-700 rounded-full shadow-sm"
-            >
-              #{keyword}
-            </span>
-          ))}
+        <div className="mt-1.5 overflow-x-auto hide-scrollbar">
+          <div className="flex gap-1.5 w-max">
+            {product.keywords.map((keyword) => (
+              <span
+                key={keyword}
+                className="flex-shrink-0 px-1.5 py-0.5 text-xs bg-white border border-slate-200 
+                 text-slate-700 rounded-full shadow-sm"
+              >
+                #{keyword}
+              </span>
+            ))}
+          </div>
         </div>
 
-        <div className="pt-3 mt-2 border-t border-slate-100">
+        <div className="pt-2 mt-1.5 border-t border-slate-100">
           <div className="flex justify-between items-center">
             <div>
-              <span className="text-xs text-slate-500 block">Price</span>
-              <p className="text-xl font-bold text-slate-900">
+              <span className="text-xs text-slate-500">Price</span>
+              <p className="text-lg font-bold text-slate-900">
                 ${product.price.toFixed(2)}
               </p>
             </div>
             <button
-              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg 
-                         hover:bg-green-700 transition-colors shadow-sm text-sm"
+              onClick={handleOrderClick}
+              className="flex items-center gap-1 px-3 py-1.5 bg-green-600 text-white rounded-lg 
+                       hover:bg-green-700 transition-colors shadow-sm text-sm font-medium"
             >
-              View Details
+              Order Now!
               <svg
                 className="w-4 h-4"
                 fill="none"
@@ -170,7 +177,7 @@ const ProductCard = ({ product }) => {
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M13 7l5 5m0 0l-5 5m5-5H6"
+                  d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"
                 />
               </svg>
             </button>
