@@ -130,7 +130,7 @@ const ImageChatbot = () => {
         setRemediesResponse("No remedies found.");
       }
     } catch (error) {
-      setRemediesResponse("Error fetching remedies.", error);
+      setRemediesResponse("Error fetching remedies", error);
     }
 
     setLoadingRemedies(false);

@@ -33,7 +33,7 @@ router.post("/", upload.single("image"), async (req, res) => {
       const buffer = Buffer.from(base64Data, "base64");
       imageBlob = new Blob([buffer]);
     } else {
-      return res.status(400).json({ error: "No image provided." });
+      return res.status(400).json({ error: "No image provided" });
     }
 
     // ✅ Connect to the new EfficientNet Hugging Face Space
