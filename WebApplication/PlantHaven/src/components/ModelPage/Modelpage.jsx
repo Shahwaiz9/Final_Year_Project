@@ -1,6 +1,9 @@
+/* eslint-disable no-unused-vars */
+/* eslint-disable react/no-children-prop */
 import { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import AIPlantImage from '../../assets/AIPlant.png';
+import ReactMarkdown from "react-markdown"; // 🆕 Import added
 
 import {
   Container,
@@ -30,7 +33,6 @@ const ImageChatbot = () => {
 
   const webcamRef = useRef(null);
 
-  // Upload from file
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -42,7 +44,6 @@ const ImageChatbot = () => {
     }
   };
 
-  // Capture from camera
   const captureFromCamera = () => {
     const imageSrc = webcamRef.current.getScreenshot();
     setBase64Image(imageSrc);
@@ -53,7 +54,6 @@ const ImageChatbot = () => {
     setRemediesResponse("");
   };
 
-  // Submit to backend
   const handleSubmit = async () => {
     if (!image && !base64Image) {
       alert("Please upload or capture an image.");
@@ -85,8 +85,7 @@ const ImageChatbot = () => {
       console.log("Received data:", data);
 
       if ((Array.isArray(data.prediction[0]) || typeof data.prediction[0] === 'string') && data.prediction.length > 0) {
-        const label = data.prediction[0] 
-       
+        const label = data.prediction[0];
         setResponse(`${label}`);
         await fetchRemedies(label);
       } else {
@@ -130,7 +129,7 @@ const ImageChatbot = () => {
         setRemediesResponse("No remedies found.");
       }
     } catch (error) {
-      setRemediesResponse("Error fetching remedies", error);
+      setRemediesResponse("Error fetching remedies");
     }
 
     setLoadingRemedies(false);
@@ -215,14 +214,13 @@ const ImageChatbot = () => {
 
             {/* Image Preview */}
             {preview && (
-              <Box sx={{ mt: 2, display:'flex' ,justifyContent: "center" }}> 
+              <Box sx={{ mt: 2, display: 'flex', justifyContent: "center" }}>
                 <img
                   src={preview}
                   alt="Preview"
                   style={{
                     width: "200px",
                     height: "200px",
-                    
                     borderRadius: "12px",
                     border: "2px solid rgba(255, 255, 255, 0.3)",
                   }}
@@ -260,14 +258,25 @@ const ImageChatbot = () => {
             {/* Remedies */}
             {flag ? (
               <Fade in={!!remediesResponse} timeout={1000}>
-                <Box sx={{ mt: 3, p: 2, backgroundColor: "rgba(0, 0, 0, 0.05)", borderRadius: "8px" }}>
-                  <Typography variant="h6" sx={{ color: "black", fontWeight: "bold" }}>
+                <Box sx={{ mt: 3, p: 2, backgroundColor: "rgba(0, 0, 0, 0.05)", borderRadius: "8px", textAlign: "left" }}>
+                  <Typography variant="h6" sx={{ color: "black", fontWeight: "bold", mb: 2 }}>
                     Remedies & Treatments:
                   </Typography>
+
                   {loadingRemedies ? (
                     <CircularProgress size={24} />
                   ) : (
-                    <Typography sx={{ mt: 1, color: "black" }}>{remediesResponse}</Typography>
+                    <ReactMarkdown
+                      children={remediesResponse}
+                      components={{
+                        h2: ({ node, ...props }) => <Typography variant="h5" sx={{ fontWeight: "bold", mt: 2 }} {...props} />,
+                        h3: ({ node, ...props }) => <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }} {...props} />,
+                        p: ({ node, ...props }) => <Typography sx={{ mt: 1 }} {...props} />,
+                        li: ({ node, ...props }) => <li style={{ marginBottom: '0.5em' }} {...props} />,
+                        strong: ({ node, ...props }) => <strong style={{ color: '#26A66b' }} {...props} />,
+                        em: ({ node, ...props }) => <em style={{ fontStyle: 'italic' }} {...props} />,
+                      }}
+                    />
                   )}
                 </Box>
               </Fade>
@@ -284,10 +293,6 @@ const ImageChatbot = () => {
 };
 
 export default ImageChatbot;
-
-
-
-
 
 
 

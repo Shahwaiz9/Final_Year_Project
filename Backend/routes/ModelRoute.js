@@ -55,56 +55,6 @@ router.post("/", upload.single("image"), async (req, res) => {
 router.post("/remedies", async (req, res) => {
   const { disease } = req.body;
 
-  const prompt = `
-Provide a structured and well-formatted response for the following plant disease:
-
-**Disease:** ${disease}  
-
-## Cause(s):
-- Cause 1  
-- Cause 2  
-- Cause 3  
-
-## Remedies & Treatments:
-### Chemical Treatments:
-- **Chemical Name** (Formula)  
-- **Another Chemical** (Formula)  
-
-### Organic Remedies:
-- **Neem oil**  
-- **Baking soda solution**  
-- **Compost tea**  
-
-### Recommended Pesticides & Fertilizers (Available in Pakistan):
-- **Pesticides:** Name 1, Name 2, Name 3  
-- **Fertilizers:** Name 1, Name 2  
-
-## Ideal Growing Conditions to Prevent ${disease}:
-### Water:
-- Drip irrigation  
-- Morning watering  
-- Avoid over/underwatering  
-
-### Soil:
-- Sandy loam  
-- pH 6.0 - 6.8  
-- Add compost  
-
-### Temperature:
-- 18°C - 24°C  
-- Avoid extreme temps  
-
-### Humidity:
-- 40% - 60%  
-- Prevent mold & dryness  
-
-### Sunlight:
-- Full sun  
-- 6–8 hours/day  
-
-Ensure the response follows this structure and **bolds** with double asterisks.
-`;
-
   try {
     const response = await axios.post(
       GROQ_URL,
