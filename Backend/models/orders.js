@@ -26,6 +26,26 @@ const orderSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    address: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    contactInfo: {
+      type: String,
+      required: true,
+    },
+    postalCode: {
+      type: String,
+      required: true,
+    },
+    paymentMethod: {
+      type: String,
+      required: true,
+    },
     status: {
       type: String,
       enum: ["Pending", "Processing", "Delivered"],

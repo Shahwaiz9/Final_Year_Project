@@ -8,6 +8,7 @@ import dotenv from "dotenv";
 import dbconnect from "./dbconnection.js";
 import vendorstatsRouter from "./routes/vendorstatsRouter.js";
 import orderRouter from "./routes/orderRouter.js";
+import vendor from "./routes/vendorRouter.js";
 
 const app = express();
 dotenv.config();
@@ -21,6 +22,7 @@ dbconnect().then(() => {
   app.use("/predict", ModelRoute);
   app.use("/vendor-stats", vendorstatsRouter);
   app.use("/orders", orderRouter);
+  app.use("/vendor", vendor);
 
   app.listen(5000, () => {
     console.log("Server is running on port 5000");

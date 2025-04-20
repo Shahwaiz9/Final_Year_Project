@@ -12,7 +12,17 @@ router.post("/place", Authenticated, async (req, res) => {
       return res.status(403).json({ message: "Only users can place orders" });
     }
 
-    const { vendor, product, quantity, totalAmount } = req.body;
+    const {
+      vendor,
+      product,
+      quantity,
+      totalAmount,
+      address,
+      city,
+      contactInfo,
+      postalCode,
+      paymentMethod,
+    } = req.body;
 
     const productData = await Product.findById(product);
     if (!productData) {
@@ -29,8 +39,12 @@ router.post("/place", Authenticated, async (req, res) => {
       quantity,
       totalAmount,
       status: "Pending",
+      address,
+      city,
+      contactInfo,
+      postalCode,
+      paymentMethod,
     });
-
     productData.quantity -= quantity;
     await productData.save();
 
