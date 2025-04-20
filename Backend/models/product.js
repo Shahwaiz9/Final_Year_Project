@@ -6,7 +6,8 @@ let productSchema = mongoose.Schema({
     required: true,
   },
   vendor: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "vendors",
     required: true,
   },
   description: {

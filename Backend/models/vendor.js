@@ -27,6 +27,11 @@ const vendorSchema = mongoose.Schema({
     type: String,
     default: "vendor",
   },
+  profilePic: {
+    type: String,
+    default:
+      "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVNFido6pvUKgR3KB2iGco6cEOFIu7fpun0A&s",
+  },
 });
 
 const vendor = mongoose.model("vendors", vendorSchema);

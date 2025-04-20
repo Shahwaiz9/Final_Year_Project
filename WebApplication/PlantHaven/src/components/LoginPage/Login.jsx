@@ -37,6 +37,8 @@ export default function Login() {
         return;
       }
 
+      console.log(data);
+
       localStorage.setItem(
         "user",
         JSON.stringify({ name: data.name, email, role: data.role })

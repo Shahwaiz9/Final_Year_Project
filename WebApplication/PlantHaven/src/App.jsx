@@ -15,6 +15,12 @@ import PrivateRouteHandler from "./PrivateRouteHandler.jsx";
 import VendorHomePage from "./components/VendorPages/VendorHomePage.jsx";
 import CreateListing from "./components/VendorPages/CreateListing.jsx";
 import MarketPlace from "./components/MarketPlace/Marketplace.jsx";
+import Product from "./components/ProductPage/Product.jsx";
+import ConfirmOrder from "./components/ConfirmOrder/ConfirmOrder.jsx";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+
+const stripePromise = loadStripe("your_publishable_key");
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -72,6 +78,15 @@ const App = () => {
                 <Route index element={<Homepage />} />
                 <Route path="model" element={<Modelpage />} />
                 <Route path="marketplace" element={<MarketPlace />} />
+                <Route path="Product/:id" element={<Product />} />
+                <Route
+                  path="/confirm-order/:id"
+                  element={
+                    <Elements stripe={stripePromise}>
+                      <ConfirmOrder />
+                    </Elements>
+                  }
+                />
                 <Route path="vendor-homepage" element={<Navigate to="/" />} />
               </Route>
             </>

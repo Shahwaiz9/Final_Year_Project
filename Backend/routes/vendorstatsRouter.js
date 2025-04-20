@@ -1,6 +1,7 @@
 import express from "express";
 import Authenticated from "../middlewares/jwtAuth.js";
 import VendorStats from "../models/vendorstats.js";
+import Product from "../models/product.js";
 
 const router = express.Router();
 
@@ -22,6 +23,21 @@ router.get("/", Authenticated, async (req, res) => {
       message: "Internal server error",
       error: e.message,
     });
+  }
+});
+
+router.get("/my-products", Authenticated, async (req, res) => {
+  try {
+    if (req.user.role !== "vendor") {
+      return res
+        .status(403)
+        .json({ message: "Only vendors can access this route" });
+    }
+
+    const products = await Product.find({ vendor: req.user._id });
+    res.status(200).json({ success: true, products });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

@@ -99,7 +99,7 @@ const MarketPlace = () => {
   return (
     <div className="min-h-screen">
       {/* Filters Section */}
-      <div className="sticky top-24 bg-white/95 backdrop-blur z-10 shadow-sm border-b border-slate-100 mt-24">
+      <div className="bg-white/95 backdrop-blur z-10 shadow-sm border-b border-slate-100 mt-24">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 space-y-4">
           {/* Search Bar */}
           <form onSubmit={handleSearch}>

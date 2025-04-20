@@ -4,10 +4,37 @@ import product from "../models/product.js";
 
 const router = express.Router();
 
+router.get("/all", Authenticated, async (req, res) => {
+  try {
+    const products = await product.find().populate("vendor");
+    res.status(200).json({ success: true, products });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
 router.get("/", Authenticated, async (req, res) => {
   try {
-    const products = await product.find();
-    res.status(200).json({ success: true, products });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const total = await product.countDocuments();
+    const products = await product
+      .find()
+      .populate("vendor")
+      .skip(skip)
+      .limit(limit);
+
+    res.status(200).json({
+      success: true,
+      products,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      },
+    });
   } catch (e) {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
@@ -15,7 +42,7 @@ router.get("/", Authenticated, async (req, res) => {
 
 router.get("/:id", Authenticated, async (req, res) => {
   try {
-    const Product = await product.findById(req.params.id);
+    const Product = await product.findById(req.params.id).populate("vendor");
     if (!Product) {
       return res.status(404).json({ message: "Product not found" });
     }
