@@ -273,7 +273,9 @@ const ImageChatbot = () => {
                         h3: ({ node, ...props }) => <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }} {...props} />,
                         p: ({ node, ...props }) => <Typography sx={{ mt: 1 }} {...props} />,
                         li: ({ node, ...props }) => <li style={{ marginBottom: '0.5em' }} {...props} />,
-                        strong: ({ node, ...props }) => <strong style={{ color: '#26A66b' }} {...props} />,
+                        strong: ({ node, ...props }) => <strong style={{ color: 'rgb(0, 168, 95)', textShadow: '0px 0px 2px black'
+
+                        }} {...props} />,
                         em: ({ node, ...props }) => <em style={{ fontStyle: 'italic' }} {...props} />,
                       }}
                     />
