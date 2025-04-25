@@ -106,7 +106,7 @@ const ProductCard = ({ product }) => {
                 />
               </svg>
               <span className="font-medium text-green-700">
-                {product.vendor}
+                {product.vendor.CompanyName}
               </span>
             </p>
           </div>

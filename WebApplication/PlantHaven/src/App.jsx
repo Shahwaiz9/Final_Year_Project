@@ -17,10 +17,11 @@ import CreateListing from "./components/VendorPages/CreateListing.jsx";
 import MarketPlace from "./components/MarketPlace/Marketplace.jsx";
 import Product from "./components/ProductPage/Product.jsx";
 import ConfirmOrder from "./components/ConfirmOrder/ConfirmOrder.jsx";
+import UserOrders from "./components/UserOrders/UserOrders.jsx";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe("your_publishable_key");
+const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
 const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -59,7 +60,7 @@ const App = () => {
         <Route element={<PrivateRouteHandler />}>
           <Route path="login" element={<Navigate to="/" />} />
           <Route path="signup/user" element={<Navigate to="/" />} />
-          <Route path="signup/vendor" element={<Navigate to="/" />} />
+          <Route path="signup/vendor" element={<VendorSignup />} />
 
           {parsedUser["role"] == "vendor" ? (
             <>
@@ -79,6 +80,7 @@ const App = () => {
                 <Route path="model" element={<Modelpage />} />
                 <Route path="marketplace" element={<MarketPlace />} />
                 <Route path="Product/:id" element={<Product />} />
+                <Route path="myorders" element={<UserOrders />} />
                 <Route
                   path="/confirm-order/:id"
                   element={

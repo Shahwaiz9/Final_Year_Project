@@ -10,6 +10,7 @@ const CreateListing = () => {
     isFeatured: false,
     keywords: "",
     image: "",
+    quantity: "", // Added quantity field
   });
   const [message, setMessage] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -79,6 +80,7 @@ const CreateListing = () => {
         ...formData,
         image: imageUrl,
         price: formData.price ? parseFloat(formData.price) : 0, // Default to 0 if empty
+        quantity: formData.quantity ? parseInt(formData.quantity) : 0, // Default to 0 if empty
         keywords: (formData.keywords || "").split(",").map((k) => k.trim()),
       };
 
@@ -109,6 +111,7 @@ const CreateListing = () => {
         isFeatured: false,
         keywords: "", // Ensure reset to empty string
         image: "",
+        quantity: "", // Reset quantity field
       });
       setImageFile(null);
       setImagePreview("");
@@ -211,6 +214,27 @@ const CreateListing = () => {
                   placeholder="0.00"
                 />
               </div>
+            </div>
+
+            {/* Quantity */}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700/90">
+                Quantity *
+              </label>
+              <input
+                type="number"
+                name="quantity"
+                value={formData.quantity}
+                onChange={handleChange}
+                required
+                className="w-full px-4 py-2.5 rounded-lg border border-slate-200
+                      bg-white/90 backdrop-blur-sm focus:outline-none
+                      focus:border-teal-600 focus:ring-2 focus:ring-teal-100
+                      placeholder-slate-400 text-slate-800
+                      transition-all duration-200 shadow-sm"
+                placeholder="Enter quantity"
+                min="0"
+              />
             </div>
 
             {/* Type Selector */}
