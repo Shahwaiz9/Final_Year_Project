@@ -53,7 +53,7 @@ const Product = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Main Product Container */}
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-200 mt-24">
+        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-300 mt-24">
           <div className="flex flex-col lg:flex-row">
             {/* Image Section - Enhanced */}
             <div className="lg:w-1/2 p-8 bg-gradient-to-br from-slate-50 to-green-50 relative group">
@@ -126,7 +126,7 @@ const Product = () => {
                       />
                     </svg>
                     <span className="font-medium">
-                      Sold by {product.vendor}
+                      Sold by {product.vendor.CompanyName}
                     </span>
                   </div>
 

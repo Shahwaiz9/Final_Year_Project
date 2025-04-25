@@ -10,6 +10,7 @@ const MarketPlace = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showFilters, setShowFilters] = useState(false);
 
   // Fetch products from API
   useEffect(() => {
@@ -61,13 +62,13 @@ const MarketPlace = () => {
 
   // Get unique types and vendors
   const uniqueTypes = [...new Set(products.map((p) => p.type))];
-  const uniqueVendors = [...new Set(products.map((p) => p.vendor))];
+  const uniqueVendors = [...new Set(products.map((p) => p.vendor.CompanyName))];
 
   // Filter logic
   const filteredProducts = products.filter((product) => {
     const matchesType = selectedType === "all" || product.type === selectedType;
     const matchesVendor =
-      selectedVendor === "all" || product.vendor === selectedVendor;
+      selectedVendor === "all" || product.vendor.CompanyName === selectedVendor;
     const matchesPrice =
       product.price >= priceRange[0] && product.price <= priceRange[1];
 
@@ -97,117 +98,145 @@ const MarketPlace = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-[#f2f2f2] to-[#0dff005f] py-12 px-4 sm:px-6 lg:px-8">
       {/* Filters Section */}
-      <div className="bg-white/95 backdrop-blur z-10 shadow-sm border-b border-slate-100 mt-24">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-6 space-y-4">
-          {/* Search Bar */}
-          <form onSubmit={handleSearch}>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="Search products..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleSearch(e);
-                }}
-                className="w-full px-6 py-3 rounded-xl border border-slate-200 
-                         focus:outline-none focus:ring-2 focus:ring-green-100
-                         focus:border-green-600 placeholder-slate-400
-                         bg-white/90 backdrop-blur-sm shadow-sm"
-              />
-              <button
-                type="submit"
-                className="absolute right-3 top-3 p-1 hover:bg-slate-100 rounded-full"
-              >
-                <svg
-                  className="h-6 w-6 text-slate-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+      <div className=" rounded-xl shadow-lg mx-4 md:mx-6 lg:mx-8 mt-16">
+        <div className="p-6 space-y-6">
+          {/* Search Bar and Filters Button */}
+          <div className="flex gap-4">
+            <form onSubmit={handleSearch} className="flex-1">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full px-6 py-4 rounded-xl border border-slate-200 
+                           focus:outline-none focus:ring-2 focus:ring-green-100
+                           focus:border-green-600 placeholder-slate-400
+                           bg-white shadow-sm text-slate-700"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-4 top-4 text-slate-500 hover:text-green-600 transition-colors"
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  <svg
+                    className="h-6 w-6"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </form>
+
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className="px-4 py-2 rounded-xl border border-slate-200 hover:border-green-400
+                       flex items-center gap-2 hover:bg-green-50 transition-colors"
+            >
+              <svg
+                className="w-5 h-5 text-slate-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"
+                />
+              </svg>
+              <span className="text-slate-700">Filters</span>
+            </button>
+          </div>
+
+          {/* Collapsible Filters */}
+          {showFilters && (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {/* Type Filter */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Type
+                </label>
+                <select
+                  value={selectedType}
+                  onChange={(e) => setSelectedType(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 
+                           focus:outline-none focus:ring-2 focus:ring-green-100
+                           focus:border-green-600 bg-white text-slate-700"
+                >
+                  <option value="all">All Types</option>
+                  {uniqueTypes.map((type) => (
+                    <option key={type} value={type}>
+                      {type}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Vendor Filter */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Vendor
+                </label>
+                <select
+                  value={selectedVendor}
+                  onChange={(e) => setSelectedVendor(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 
+                           focus:outline-none focus:ring-2 focus:ring-green-100
+                           focus:border-green-600 bg-white text-slate-700"
+                >
+                  <option value="all">All Vendors</option>
+                  {uniqueVendors.map((vendor) => (
+                    <option key={vendor} value={vendor}>
+                      {vendor}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Price Filter */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Price Range
+                </label>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="number"
+                    placeholder="Min"
+                    value={priceRange[0]}
+                    onChange={(e) =>
+                      setPriceRange([Number(e.target.value), priceRange[1]])
+                    }
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 
+                             focus:outline-none focus:ring-2 focus:ring-green-100
+                             focus:border-green-600 bg-white text-slate-700"
                   />
-                </svg>
-              </button>
-            </div>
-          </form>
-
-          {/* Filters Row */}
-          <div className="flex flex-wrap gap-4 items-center">
-            {/* Type Filter */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-slate-600">Type:</label>
-              <select
-                value={selectedType}
-                onChange={(e) => setSelectedType(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-slate-200 
-                         focus:outline-none focus:ring-2 focus:ring-green-100
-                         focus:border-green-600 bg-white/90 backdrop-blur-sm"
-              >
-                <option value="all">All Types</option>
-                {uniqueTypes.map((type) => (
-                  <option key={type} value={type}>
-                    {type}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Vendor Filter */}
-            <div className="flex items-center gap-2">
-              <label className="text-sm text-slate-600">Vendor:</label>
-              <select
-                value={selectedVendor}
-                onChange={(e) => setSelectedVendor(e.target.value)}
-                className="px-4 py-2 rounded-lg border border-slate-200 
-                         focus:outline-none focus:ring-2 focus:ring-green-100
-                         focus:border-green-600 bg-white/90 backdrop-blur-sm"
-              >
-                <option value="all">All Vendors</option>
-                {uniqueVendors.map((vendor) => (
-                  <option key={vendor} value={vendor}>
-                    {vendor}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Price Filter */}
-            <div className="flex items-center gap-4">
-              <label className="text-sm text-slate-600">Price Range:</label>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  value={priceRange[0]}
-                  onChange={(e) =>
-                    setPriceRange([Number(e.target.value), priceRange[1]])
-                  }
-                  className="w-20 px-3 py-2 rounded-lg border border-slate-200 
-                           focus:outline-none focus:ring-2 focus:ring-green-100
-                           focus:border-green-600"
-                />
-                <span className="text-slate-400">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  value={priceRange[1]}
-                  onChange={(e) =>
-                    setPriceRange([priceRange[0], Number(e.target.value)])
-                  }
-                  className="w-20 px-3 py-2 rounded-lg border border-slate-200 
-                           focus:outline-none focus:ring-2 focus:ring-green-100
-                           focus:border-green-600"
-                />
+                  <span className="text-slate-400">–</span>
+                  <input
+                    type="number"
+                    placeholder="Max"
+                    value={priceRange[1]}
+                    onChange={(e) =>
+                      setPriceRange([priceRange[0], Number(e.target.value)])
+                    }
+                    className="w-full px-3 py-2 rounded-lg border border-slate-200 
+                             focus:outline-none focus:ring-2 focus:ring-green-100
+                             focus:border-green-600 bg-white text-slate-700"
+                  />
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
 

@@ -22,7 +22,7 @@ router.get("/", Authenticated, async (req, res) => {
     const total = await product.countDocuments();
     const products = await product
       .find()
-      .populate("vendor")
+      .populate("vendor", "CompanyName")
       .skip(skip)
       .limit(limit);
 
@@ -42,7 +42,9 @@ router.get("/", Authenticated, async (req, res) => {
 
 router.get("/:id", Authenticated, async (req, res) => {
   try {
-    const Product = await product.findById(req.params.id).populate("vendor");
+    const Product = await product
+      .findById(req.params.id)
+      .populate("vendor", "CompanyName");
     if (!Product) {
       return res.status(404).json({ message: "Product not found" });
     }

@@ -7,7 +7,7 @@ const navItems = [
   { id: 1, text: "Home", path: "/" },
   { id: 2, text: "Detect Disease", path: "/model" },
   { id: 3, text: "MarketPlace", path: "/marketplace" },
-  { id: 4, text: "Contact Us", path: "/contact" },
+  { id: 4, text: "My Orders", path: "/myorders" },
 ];
 
 const TopNavbar = () => {
