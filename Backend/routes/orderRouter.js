@@ -92,6 +92,18 @@ router.get("/user-orders", Authenticated, async (req, res) => {
   }
 });
 
+router.get("/:orderid", Authenticated, async (req, res) => {
+  try {
+    const order = await Order.find({ _id: req.query.orderid })
+      .populate("product")
+      .populate("vendor", "CompanyName");
+
+    res.status(200).json({ success: true, order });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+});
+
 router.get("/vendor-orders", Authenticated, async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
