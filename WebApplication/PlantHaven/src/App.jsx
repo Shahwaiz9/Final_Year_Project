@@ -20,6 +20,7 @@ import ConfirmOrder from "./components/ConfirmOrder/ConfirmOrder.jsx";
 import UserOrders from "./components/UserOrders/UserOrders.jsx";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import AdminPanel from "./components/Admin/AdminPanel.jsx";
 
 const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
@@ -49,6 +50,8 @@ const App = () => {
             <Route path="login" element={<Login />} />
             <Route path="signup/user" element={<SignupPage />} />
             <Route path="signup/vendor" element={<VendorSignup />} />
+            <Route path="admin" element={<AdminPanel />} />
+            
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Homepage />} />
               <Route path="model" element={<Modelpage />} />
@@ -61,7 +64,7 @@ const App = () => {
           <Route path="login" element={<Navigate to="/" />} />
           <Route path="signup/user" element={<Navigate to="/" />} />
           <Route path="signup/vendor" element={<VendorSignup />} />
-
+          
           {parsedUser["role"] == "vendor" ? (
             <>
               <Route path="/" element={<Navigate to="/vendor-homepage" />} />

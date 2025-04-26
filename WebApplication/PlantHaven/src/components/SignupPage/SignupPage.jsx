@@ -25,10 +25,7 @@ export default function SignupPage() {
   const handlesubmit=async (e)=>{
     e.preventDefault();
     const {name,email,password,confirmPassword}=userData
-    console.log(password)
-    console.log(confirmPassword)
-    console.log(password!=confirmPassword)
-    
+   
     if(password!=confirmPassword) {
       setErrorMsg("Password and Confirm Password fields do not match")
       return;
