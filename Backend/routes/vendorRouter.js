@@ -44,14 +44,20 @@ router.put("/update", Authenticated, async (req, res) => {
         .json({ message: "Only vendors can update profile" });
     }
 
-    const allowedFields = ["CompanyName", "CompanyAddress", "email", "contact"];
+    const allowedFields = [
+      "CompanyName",
+      "CompanyAddress",
+      "email",
+      "contact",
+      "profilePic",
+    ];
     const updateData = {};
 
     allowedFields.forEach((field) => {
       if (req.body[field]) updateData[field] = req.body[field];
     });
 
-    const updatedVendor = await Vendor.findByIdAndUpdate(
+    const updatedVendor = await vendor.findByIdAndUpdate(
       req.user._id,
       updateData,
       { new: true }

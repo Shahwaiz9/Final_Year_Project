@@ -14,6 +14,14 @@ const columnHelper = createColumnHelper();
 const VendorHomePage = ({ setIsAuthenticated }) => {
   // State management
   const [vendorInfo, setVendorInfo] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    CompanyName: "",
+    CompanyAddress: "",
+    email: "",
+    contact: "",
+    profilePic: "",
+  });
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +32,9 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
     pendingOrders: 0,
     totalSalesAmount: 0,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedStat, setSelectedStat] = useState(null);
   const [allOrders, setAllOrders] = useState([]);
   const [displayOrders, setDisplayOrders] = useState([]);
@@ -33,6 +44,11 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
   const [currentView, setCurrentView] = useState("dashboard");
   const [productsPage, setProductsPage] = useState(1);
   const productsPerPage = 8;
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [showOrderDetails, setShowOrderDetails] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchCategory, setSearchCategory] = useState("products");
+
   const navigate = useNavigate();
 
   // Sidebar menu configuration
@@ -168,9 +184,58 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
     []
   );
 
+  // Search logic for products
+  const searchedProducts = useMemo(() => {
+    // Only search if we're in a product view and have a search term
+    const shouldSearch =
+      (currentView === "products" || currentView === "featured-products") &&
+      searchTerm;
+    if (!shouldSearch) return filteredProducts;
+
+    const lowerCaseTerm = searchTerm.toLowerCase();
+
+    return filteredProducts.filter((product) => {
+      const matchesName = product.productname
+        .toLowerCase()
+        .includes(lowerCaseTerm);
+      const matchesDesc = product.description
+        .toLowerCase()
+        .includes(lowerCaseTerm);
+      const matchesKeywords = product.keywords?.some((k) =>
+        k.toLowerCase().includes(lowerCaseTerm)
+      );
+
+      return matchesName || matchesDesc || matchesKeywords;
+    });
+  }, [filteredProducts, searchTerm, currentView]);
+
+  // Search logic for orders
+  // Search logic for orders
+  const searchedOrders = useMemo(() => {
+    const isOrderView =
+      currentView === "total-orders" ||
+      currentView === "pending-orders" ||
+      currentView === "completed-orders";
+    if (!searchTerm || !isOrderView) return displayOrders;
+
+    return displayOrders.filter(
+      (order) =>
+        order.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order.product.productname
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        order.status.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        order._id.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [displayOrders, searchTerm, currentView]);
+
   // React Table instance
   const table = useReactTable({
-    data: displayOrders,
+    data:
+      currentView.includes("order") && searchTerm
+        ? searchedOrders
+        : displayOrders,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -252,7 +317,7 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
           if (!response.ok) throw new Error("Failed to fetch orders");
           const { orders } = await response.json();
           setAllOrders(orders);
-
+          console.log(orders);
           const selectedFilter =
             menuItems.find((s) => s.statType === selectedStat)?.statType ===
             "all"
@@ -295,7 +360,9 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
   );
 
   const totalProductPages = Math.ceil(
-    filteredProducts.length / productsPerPage
+    (searchTerm && searchCategory === "products"
+      ? searchedProducts.length
+      : filteredProducts.length) / productsPerPage
   );
 
   // Logout function
@@ -392,6 +459,88 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
     }
   };
 
+  const handleSave = async () => {
+    try {
+      setUploadingImage(true);
+      let profilePicUrl = editData.profilePic; // Keep existing if no new image
+
+      // Only upload if new image was selected
+      if (imageFile) {
+        const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${
+          import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "default_cloud_name"
+        }/upload`;
+
+        const formData = new FormData();
+        formData.append("file", imageFile);
+        formData.append(
+          "upload_preset",
+          import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "default_preset"
+        );
+
+        const uploadResponse = await fetch(cloudinaryUrl, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadResponse.ok) {
+          throw new Error("Profile picture upload failed");
+        }
+
+        const uploadData = await uploadResponse.json();
+        profilePicUrl = uploadData.secure_url;
+      }
+
+      // Update profile with all data
+      const authToken = localStorage.getItem("authToken");
+      const response = await fetch("http://localhost:5000/vendor/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: authToken,
+        },
+        body: JSON.stringify({
+          ...editData,
+          profilePic: profilePicUrl,
+        }),
+      });
+
+      if (!response.ok) throw new Error("Profile update failed");
+
+      const { vendor: updatedVendor } = await response.json();
+      setVendorInfo(updatedVendor);
+      setIsEditing(false);
+      setImageFile(null);
+      setImagePreview("");
+      alert("Profile updated successfully!");
+    } catch (err) {
+      console.error("Failed to update profile:", err);
+      alert(err.message || "Failed to update profile");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Generate preview immediately
+    const previewUrl = URL.createObjectURL(file);
+    setImagePreview(previewUrl);
+    setImageFile(file);
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+    setImageFile(null);
+    setImagePreview("");
+  };
+
+  const handleOrderClick = (order) => {
+    setSelectedOrder(order);
+    setShowOrderDetails(true);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-gray-50">
@@ -409,10 +558,17 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div
+      className="flex min-h-screen"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(220,220,220,0.9), rgba(220,220,220,0.9)), url('https://static.vecteezy.com/system/resources/previews/034/959/020/non_2x/abstract-black-line-contour-pattern-white-background-wallpaper-free-png.png')",
+        backgroundSize: "cover",
+      }}
+    >
       {/* Sidebar */}
       <div
-        className={`bg-teal-800 text-white transition-all duration-300 fixed h-full z-20 ${
+        className={`bg-[url('https://www.transparenttextures.com/patterns/subtle-white-feathers.png')] bg-teal-800 text-white transition-all duration-300 fixed h-full z-20 ${
           sidebarOpen ? "w-64" : "w-20"
         }`}
       >
@@ -516,13 +672,16 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
             </button>
           </div>
 
-          {/* Dashboard View */}
-          {currentView === "dashboard" && (
-            <div className="bg-white rounded-xl shadow-md p-6 mb-8">
-              <div className="flex flex-col md:flex-row gap-6 items-center">
-                <div className="w-24 h-24 rounded-full bg-teal-100 flex items-center justify-center">
+          {(currentView === "products" ||
+            currentView === "featured-products" ||
+            currentView === "total-orders" ||
+            currentView === "pending-orders" ||
+            currentView === "completed-orders") && (
+            <div className="mb-6">
+              <div className="relative w-full max-w-md">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <svg
-                    className="w-12 h-12 text-teal-600"
+                    className="h-5 w-5 text-gray-400"
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -531,30 +690,312 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                       strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                     />
                   </svg>
                 </div>
-                <div className="text-center md:text-left">
-                  <h2 className="text-2xl font-bold text-teal-800">
-                    {vendorInfo?.CompanyName || "Your Store"}
-                  </h2>
-                  <p className="text-gray-600 mt-2 flex items-center justify-center md:justify-start">
-                    <svg
-                      className="w-5 h-5 mr-2"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                <input
+                  type="text"
+                  placeholder={`Search ${
+                    currentView.includes("product") ? "products" : "orders"
+                  }...`}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Dashboard View */}
+          {currentView === "dashboard" && (
+            <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6 mb-8">
+              <div className="flex flex-col md:flex-row gap-6 items-start">
+                {/* Profile Picture Section */}
+                <div className="relative group mx-auto md:mx-0">
+                  <div className="w-24 h-24 rounded-full bg-teal-50 flex items-center justify-center overflow-hidden border-2 border-teal-100">
+                    {imagePreview ? (
+                      <img
+                        src={imagePreview}
+                        alt="Profile Preview"
+                        className="w-full h-full object-cover"
                       />
-                    </svg>
-                    {vendorInfo?.email}
-                  </p>
+                    ) : vendorInfo?.profilePic ? (
+                      <img
+                        src={vendorInfo.profilePic}
+                        alt="Profile"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <svg
+                        className="w-12 h-12 text-teal-400"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={1.5}
+                          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                  {isEditing && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-30 rounded-full opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                      <svg
+                        className="w-6 h-6 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Vendor Information */}
+                <div className="flex-1 w-full">
+                  {isEditing ? (
+                    <div className="space-y-4">
+                      {/* Keep existing input fields exactly as they were */}
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Company Name
+                        </label>
+                        <input
+                          type="text"
+                          value={editData.CompanyName}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              CompanyName: e.target.value,
+                            })
+                          }
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-teal-400 focus:border-teal-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Company Address
+                        </label>
+                        <input
+                          type="text"
+                          value={editData.CompanyAddress}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              CompanyAddress: e.target.value,
+                            })
+                          }
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-teal-400 focus:border-teal-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          value={editData.email}
+                          onChange={(e) =>
+                            setEditData({ ...editData, email: e.target.value })
+                          }
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-teal-400 focus:border-teal-400"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-600 mb-1">
+                          Contact
+                        </label>
+                        <input
+                          type="tel"
+                          value={editData.contact}
+                          onChange={(e) =>
+                            setEditData({
+                              ...editData,
+                              contact: e.target.value,
+                            })
+                          }
+                          pattern="03[0-9]{9}"
+                          className="w-full p-2 border border-gray-300 rounded-md focus:ring-1 focus:ring-teal-400 focus:border-teal-400"
+                        />
+                      </div>
+                      <div className="flex gap-2 pt-2">
+                        <button
+                          onClick={handleSave}
+                          disabled={uploadingImage}
+                          className={`px-4 py-2 bg-teal-500 text-white rounded-md hover:bg-teal-600 transition-colors flex items-center ${
+                            uploadingImage
+                              ? "opacity-50 cursor-not-allowed"
+                              : ""
+                          }`}
+                        >
+                          {uploadingImage ? (
+                            <>
+                              <svg
+                                className="animate-spin h-4 w-4 mr-2"
+                                viewBox="0 0 24 24"
+                              >
+                                <circle
+                                  className="opacity-25"
+                                  cx="12"
+                                  cy="12"
+                                  r="10"
+                                  stroke="currentColor"
+                                  strokeWidth="4"
+                                ></circle>
+                                <path
+                                  className="opacity-75"
+                                  fill="currentColor"
+                                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                ></path>
+                              </svg>
+                              Saving...
+                            </>
+                          ) : (
+                            <>
+                              <svg
+                                className="w-4 h-4 mr-2"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 13l4 4L19 7"
+                                />
+                              </svg>
+                              Save Changes
+                            </>
+                          )}
+                        </button>
+                        <button
+                          onClick={handleCancel}
+                          className="px-4 py-2 bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="text-center md:text-left space-y-3">
+                        <h2 className="text-2xl font-semibold text-gray-800">
+                          {vendorInfo?.CompanyName || "Your Store"}
+                        </h2>
+
+                        <div className="flex items-center text-gray-600">
+                          <svg
+                            className="w-5 h-5 mr-2 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span>{vendorInfo?.email}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <svg
+                            className="w-5 h-5 mr-2 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          <span>{vendorInfo?.CompanyAddress}</span>
+                        </div>
+
+                        <div className="flex items-center text-gray-600">
+                          <svg
+                            className="w-5 h-5 mr-2 text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={1.5}
+                              d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"
+                            />
+                          </svg>
+                          <span>{vendorInfo?.contact}</span>
+                        </div>
+                      </div>
+
+                      <button
+                        onClick={() => {
+                          setIsEditing(true);
+                          setEditData({
+                            CompanyName: vendorInfo?.CompanyName || "",
+                            CompanyAddress: vendorInfo?.CompanyAddress || "",
+                            email: vendorInfo?.email || "",
+                            contact: vendorInfo?.contact || "",
+                            profilePic: vendorInfo?.profilePic || "",
+                          });
+                          setImageFile(null);
+                          setImagePreview("");
+                        }}
+                        className="mt-4 px-4 py-2 bg-white border border-teal-500 text-teal-600 rounded-md hover:bg-teal-50 transition-colors flex items-center"
+                      >
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                          />
+                        </svg>
+                        Edit Profile
+                      </button>
+                    </>
+                  )}
                 </div>
               </div>
             </div>
@@ -595,7 +1036,8 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
                     {table.getRowModel().rows.map((row) => (
                       <tr
                         key={row.id}
-                        className="hover:bg-gray-50 transition-colors"
+                        className="hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() => handleOrderClick(row.original)}
                       >
                         {row.getVisibleCells().map((cell) => (
                           <td
@@ -675,61 +1117,66 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
-                    {paginatedProducts.map((product) => (
-                      <div
-                        key={product._id}
-                        className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                      >
-                        <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
-                          <img
-                            src={product.image}
-                            alt={product.productname}
-                            className="h-full w-full object-contain"
-                          />
-                        </div>
-                        <div className="p-4">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
-                            {product.productname}
-                          </h3>
-                          {product.keywords?.length > 0 && (
-                            <p className="text-xs text-gray-500 mb-2 line-clamp-1">
-                              {product.keywords
-                                .map((k) => `#${k.trim()}`)
-                                .join(" ")}
-                            </p>
-                          )}
-                          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                            {product.description}
-                          </p>
-                          <div className="flex justify-between items-center">
-                            <span className="text-teal-600 font-bold">
-                              Rs. {product.price}
-                            </span>
-                            {product.isFeatured && (
-                              <span className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded-full">
-                                Featured
-                              </span>
+                    {searchedProducts
+                      .slice(
+                        (productsPage - 1) * productsPerPage,
+                        productsPage * productsPerPage
+                      )
+                      .map((product) => (
+                        <div
+                          key={product._id}
+                          className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          <div className="h-48 bg-gray-100 flex items-center justify-center p-4">
+                            <img
+                              src={product.image}
+                              alt={product.productname}
+                              className="h-full w-full object-contain"
+                            />
+                          </div>
+                          <div className="p-4">
+                            <h3 className="text-lg font-semibold text-gray-800 mb-1 line-clamp-1">
+                              {product.productname}
+                            </h3>
+                            {product.keywords?.length > 0 && (
+                              <p className="text-xs text-gray-500 mb-2 line-clamp-1">
+                                {product.keywords
+                                  .map((k) => `#${k.trim()}`)
+                                  .join(" ")}
+                              </p>
                             )}
-                          </div>
-                          <div className="flex gap-2 mt-4">
-                            <button
-                              className="flex-1 py-2 text-sm bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition-colors"
-                              onClick={() =>
-                                navigate(`/edit-product/${product._id}`)
-                              }
-                            >
-                              Edit
-                            </button>
-                            <button
-                              className="flex-1 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
-                              onClick={() => handleDelete(product._id)}
-                            >
-                              Delete
-                            </button>
+                            <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                              {product.description}
+                            </p>
+                            <div className="flex justify-between items-center">
+                              <span className="text-teal-600 font-bold">
+                                Rs. {product.price}
+                              </span>
+                              {product.isFeatured && (
+                                <span className="text-xs bg-cyan-100 text-cyan-800 px-2 py-1 rounded-full">
+                                  Featured
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex gap-2 mt-4">
+                              <button
+                                className="flex-1 py-2 text-sm bg-teal-100 text-teal-700 rounded-lg hover:bg-teal-200 transition-colors"
+                                onClick={() =>
+                                  navigate(`/edit-product/${product._id}`)
+                                }
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="flex-1 py-2 text-sm bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                                onClick={() => handleDelete(product._id)}
+                              >
+                                Delete
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    ))}
+                      ))}
                   </div>
 
                   {/* Products Pagination */}
@@ -800,6 +1247,155 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
             </Link>
           </div>
         </div>
+        {showOrderDetails && selectedOrder && (
+          <div className="fixed inset-0 backdrop-blur-sm bg-white/30 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border border-slate-300">
+              <div className="p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-800">
+                    Order Details
+                  </h2>
+                  <button
+                    onClick={() => setShowOrderDetails(false)}
+                    className="text-gray-500 hover:text-gray-700"
+                  >
+                    <svg
+                      className="w-6 h-6"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Customer Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-700 mb-3">
+                      Customer Information
+                    </h3>
+                    <div className="space-y-2">
+                      <p>
+                        <span className="font-medium">Name:</span>{" "}
+                        {selectedOrder.user.name}
+                      </p>
+                      <p>
+                        <span className="font-medium">Email:</span>{" "}
+                        {selectedOrder.user.email}
+                      </p>
+                      <p>
+                        <span className="font-medium">Contact:</span>{" "}
+                        {selectedOrder.contactInfo}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Shipping Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-700 mb-3">
+                      Shipping Information
+                    </h3>
+                    <div className="space-y-2">
+                      <p>
+                        <span className="font-medium">Address:</span>{" "}
+                        {selectedOrder.address}
+                      </p>
+                      <p>
+                        <span className="font-medium">City:</span>{" "}
+                        {selectedOrder.city}
+                      </p>
+                      <p>
+                        <span className="font-medium">Postal Code:</span>{" "}
+                        {selectedOrder.postalCode}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Order Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg">
+                    <h3 className="font-medium text-gray-700 mb-3">
+                      Order Information
+                    </h3>
+                    <div className="space-y-2">
+                      <p>
+                        <span className="font-medium">Order Date:</span>{" "}
+                        {new Date(selectedOrder.createdAt).toLocaleString()}
+                      </p>
+                      <p>
+                        <span className="font-medium">Payment Method:</span>{" "}
+                        {selectedOrder.paymentMethod}
+                      </p>
+                      <p>
+                        <span className="font-medium">Status:</span>
+                        <span
+                          className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                            selectedOrder.status === "Delivered"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-gray-100 text-gray-800"
+                          }`}
+                        >
+                          {selectedOrder.status}
+                        </span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Product Information */}
+                  <div className="bg-gray-50 p-4 rounded-lg md:col-span-2">
+                    <h3 className="font-medium text-gray-700 mb-3">
+                      Product Details
+                    </h3>
+                    <div className="flex items-start gap-4">
+                      <img
+                        src={selectedOrder.product.image}
+                        alt={selectedOrder.product.productname}
+                        className="w-20 h-20 object-cover rounded-md border border-gray-200"
+                      />
+                      <div>
+                        <h4 className="font-medium text-gray-800">
+                          {selectedOrder.product.productname}
+                        </h4>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {selectedOrder.product.description}
+                        </p>
+                        <div className="flex gap-4">
+                          <p>
+                            <span className="font-medium">Price:</span> Rs.{" "}
+                            {selectedOrder.product.price}
+                          </p>
+                          <p>
+                            <span className="font-medium">Quantity:</span>{" "}
+                            {selectedOrder.quantity}
+                          </p>
+                          <p>
+                            <span className="font-medium">Total:</span> Rs.{" "}
+                            {selectedOrder.totalAmount.toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-6 flex justify-end">
+                  <button
+                    onClick={() => setShowOrderDetails(false)}
+                    className="px-4 py-2 bg-teal-600 text-white rounded-md hover:bg-teal-700 transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
