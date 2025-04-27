@@ -43,7 +43,7 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [currentView, setCurrentView] = useState("dashboard");
   const [productsPage, setProductsPage] = useState(1);
-  const productsPerPage = 8;
+  const productsPerPage = 4;
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [showOrderDetails, setShowOrderDetails] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -1148,6 +1148,24 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
                             <p className="text-sm text-gray-600 mb-3 line-clamp-2">
                               {product.description}
                             </p>
+
+                            {/* Quantity/Stock Display */}
+                            <div className="flex items-center gap-1 mb-2">
+                              <span className="text-sm text-gray-500">
+                                Stock:
+                              </span>
+                              <span
+                                className={`text-sm font-medium ${
+                                  product.quantity > 0
+                                    ? "text-green-600"
+                                    : "text-red-600"
+                                }`}
+                              >
+                                {product.quantity}{" "}
+                                {product.quantity === 1 ? "item" : "items"}
+                              </span>
+                            </div>
+
                             <div className="flex justify-between items-center">
                               <span className="text-teal-600 font-bold">
                                 Rs. {product.price}
