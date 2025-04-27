@@ -56,6 +56,21 @@ router.get("/:id", Authenticated, async (req, res) => {
   }
 });
 
+router.get("/featured/featured-products", async (req, res) => {
+  try {
+    const featuredProducts = await product.find({ isFeatured: true });
+
+    if (!featuredProducts) {
+      return res.status(404).json({ message: "No featured products found" });
+    }
+
+    res.json({ products: featuredProducts });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.post("/add", Authenticated, async (req, res) => {
   try {
     if (req.user.role !== "vendor") {
@@ -195,6 +210,42 @@ router.get("/search/:key", Authenticated, async (req, res) => {
     return res
       .status(500)
       .json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/request-feature/:id", Authenticated, async (req, res) => {
+  try {
+    const Product = await product.findById(req.params.id);
+
+    if (!Product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (Product.vendor.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "You are not authorized to request feature for this product",
+      });
+    }
+
+    if (Product.FeaturedRequest === "Pending") {
+      return res
+        .status(400)
+        .json({ message: "Feature request already pending" });
+    }
+    if (Product.FeaturedRequest === "Approved") {
+      return res.status(400).json({ message: "Product is already featured" });
+    }
+
+    Product.FeaturedRequest = "Pending";
+    await Product.save();
+
+    res.status(200).json({
+      message:
+        "Feature request submitted successfully and is pending admin approval",
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 });
 

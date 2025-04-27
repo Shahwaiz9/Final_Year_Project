@@ -21,6 +21,9 @@ import UserOrders from "./components/UserOrders/UserOrders.jsx";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import AdminPanel from "./components/Admin/AdminPanel.jsx";
+import Home from "./components/Admin/Home.jsx"
+import FeatureRequestPage from "./components/Admin/FeatureRequestPage.jsx";
+import FeaturedProducts from "./components/Admin/FeaturedProducts.jsx";
 
 const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
@@ -50,8 +53,13 @@ const App = () => {
             <Route path="login" element={<Login />} />
             <Route path="signup/user" element={<SignupPage />} />
             <Route path="signup/vendor" element={<VendorSignup />} />
-            <Route path="admin" element={<AdminPanel />} />
-            
+        
+            <Route path="/admin" element={<AdminPanel />}>
+              <Route index element={<Home/>} />
+              <Route path="feature-page" element={<FeatureRequestPage />} />
+              <Route path="featured-products" element={<FeaturedProducts />} />
+            </Route>
+
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Homepage />} />
               <Route path="model" element={<Modelpage />} />

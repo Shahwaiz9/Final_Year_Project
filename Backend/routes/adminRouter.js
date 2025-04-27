@@ -71,4 +71,59 @@ router.get("/stats-summary", async (req, res) => {
   }
 });
 
+router.get("/pending-feature-requests", async (req, res) => {
+  try {
+    const products = await product
+      .find({ FeaturedRequest: "Pending" })
+      .populate("vendor", "CompanyName");
+
+    res.status(200).json({
+      success: true,
+      products,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.post("/feature-request/:id", async (req, res) => {
+  try {
+    const { action } = req.body;
+
+    const Product = await product.findById(req.params.id);
+
+    if (!Product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (Product.FeaturedRequest !== "Pending") {
+      return res
+        .status(400)
+        .json({ message: "No pending feature request for this product" });
+    }
+
+    if (action === "approve") {
+      Product.FeaturedRequest = "Approved";
+      Product.isFeatured = true;
+    } else if (action === "reject") {
+      Product.FeaturedRequest = "Rejected";
+      Product.isFeatured = false;
+    } else {
+      return res
+        .status(400)
+        .json({ message: "Invalid action. Must be 'approve' or 'reject'" });
+    }
+
+    await Product.save();
+
+    res
+      .status(200)
+      .json({ message: `Feature request has been ${action}d successfully` });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 export default router;

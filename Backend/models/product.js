@@ -32,6 +32,11 @@ let productSchema = mongoose.Schema({
     required: true,
     default: false,
   },
+  FeaturedRequest: {
+    type: String,
+    enum: ["None", "Pending", "Approved", "Waiting", "Rejected"],
+    default: "None",
+  },
   keywords: {
     type: Array,
   },

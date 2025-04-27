@@ -3,7 +3,7 @@ import { useState } from 'react'
 import './AdminPanel.css'
 import Header from './Header'
 import Sidebar from './Sidebar'
-import Home from './Home'
+import { Outlet } from 'react-router'
 
 function AdminPanel() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false)
@@ -16,7 +16,7 @@ function AdminPanel() {
     <div className='grid-container'>
       <Header OpenSidebar={OpenSidebar}/>
       <Sidebar openSidebarToggle={openSidebarToggle} OpenSidebar={OpenSidebar}/>
-      <Home />
+      <Outlet />
     </div>
   )
 }
