@@ -141,7 +141,7 @@ const ImageChatbot = () => {
 
       <Container maxWidth="sm" sx={{ mt: 10, mb: 10, position: "relative", zIndex: 1 }}>
         <Card
-          className="card"
+          className="modelcard"
           sx={{
             p: 3,
             mt: 8,

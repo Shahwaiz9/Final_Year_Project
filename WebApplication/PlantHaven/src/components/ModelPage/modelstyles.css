@@ -9,10 +9,10 @@
     background-position: center;
     background-repeat: no-repeat;
   }
-  .card{
+  .modelcard{
     /* Apply Glassmorphism effect to the Card */
 
-    background: rgba(255, 255, 255, 0.2); /* Transparent white */
+    background: rgba(195, 0, 0, 0.2); /* Transparent white */
     backdrop-filter: blur(10px); /* Blur effect */
     border-radius: 12px;
     padding: 20px;
@@ -20,6 +20,7 @@
     border: 1px solid rgba(255, 255, 255, 0.3); /* Light border */
 
   }
+ 
   /* Dark overlay to improve text readability */
   .overlay {
     position: absolute;
