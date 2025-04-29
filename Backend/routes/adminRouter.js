@@ -126,4 +126,36 @@ router.post("/feature-request/:id", async (req, res) => {
   }
 });
 
+
+router.get("/vendor", async (req, res) => {
+  try {
+    const vendors = await vendor.find({});
+   
+    res.status(200).json({
+      success: true,
+      vendors,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+
+router.get("/customers", async (req, res) => {
+  try {
+    const users = await user.find({});
+   
+    
+
+    
+    res.status(200).json({
+      success: true,
+      users,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+
 export default router;

@@ -16,8 +16,8 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
     { icon: BsGrid1X2Fill, title: 'Dashboard', path: '/admin' },
     { icon: BsFillArchiveFill, title: 'Feature Requests', path: '/admin/feature-page' },
     { icon: BsFillGrid3X3GapFill, title: 'Feautured Products', path: '/admin/featured-products' },
-    { icon: BsPeopleFill, title: 'Customers', path: '/admin' },
-    { icon: BsListCheck, title: 'Inventory', path: '/admin' },
+    { icon: BsPeopleFill, title: 'Customers', path: '/admin/customer' },
+    { icon: BsListCheck, title: 'Vendors', path: '/admin/vendor' },
     { icon: BsMenuButtonWideFill, title: 'Reports', path: '/admin' },
     { icon: BsFillGearFill, title: 'Settings', path: '/settings' }
   ];
