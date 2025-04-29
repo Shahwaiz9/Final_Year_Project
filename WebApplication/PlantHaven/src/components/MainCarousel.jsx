@@ -126,7 +126,7 @@ const MainCarousel = () => {
       <button
         onClick={prevSlide}
         className="absolute left-4 top-1/2 bg-white/50 hover:bg-white/70 p-3 pt-2 rounded-full 
-                 transition-colors duration-300 text-xl"
+                 transition-colors duration-300 text-xl text-black"
         aria-label="Previous slide"
       >
         ←
@@ -134,7 +134,7 @@ const MainCarousel = () => {
       <button
         onClick={nextSlide}
         className="absolute right-4 top-1/2 bg-white/50 hover:bg-white/70 p-3 pt-2 rounded-full 
-                 transition-colors duration-300 text-xl"
+                 transition-colors duration-300 text-xl text-black"
         aria-label="Next slide"
       >
         →

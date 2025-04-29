@@ -11,6 +11,12 @@ const MarketPlace = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 4,
+    total: 0,
+    pages: 1,
+  });
 
   // Fetch products from API
   useEffect(() => {
@@ -19,11 +25,11 @@ const MarketPlace = () => {
         setLoading(true);
         const authToken = localStorage.getItem("authToken");
 
-        let url = "http://localhost:5000/product";
+        let url = `http://localhost:5000/product?page=${pagination.page}&limit=${pagination.limit}`;
         if (searchTerm.trim()) {
           url = `http://localhost:5000/product/search/${encodeURIComponent(
             searchTerm.trim()
-          )}`;
+          )}?page=${pagination.page}&limit=${pagination.limit}`;
         }
 
         const response = await fetch(url, {
@@ -38,17 +44,28 @@ const MarketPlace = () => {
 
         const data = await response.json();
         setProducts(data.products);
+        setPagination((prev) => ({
+          ...prev,
+          total: data.pagination?.total || 0,
+          pages: data.pagination?.pages || 1,
+        }));
         setError(null);
       } catch (err) {
         setError(err.message);
         setProducts([]);
+        setPagination({
+          page: 1,
+          limit: 10,
+          total: 0,
+          pages: 1,
+        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [searchTerm]);
+  }, [searchTerm, pagination.page, pagination.limit]);
 
   // Calculate price range when products change
   useEffect(() => {
@@ -59,6 +76,12 @@ const MarketPlace = () => {
       setPriceRange([minPrice, maxPrice]);
     }
   }, [products]);
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= pagination.pages) {
+      setPagination((prev) => ({ ...prev, page: newPage }));
+    }
+  };
 
   // Get unique types and vendors
   const uniqueTypes = [...new Set(products.map((p) => p.type))];
@@ -78,6 +101,7 @@ const MarketPlace = () => {
   // Search handler
   const handleSearch = (e) => {
     e.preventDefault();
+    setPagination((prev) => ({ ...prev, page: 1 }));
     setSearchTerm(searchQuery);
   };
 
@@ -98,7 +122,7 @@ const MarketPlace = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f2f2f2] to-[#0dff005f] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-300 to-gray-100 py-12 px-4 sm:px-6 lg:px-8">
       {/* Filters Section */}
       <div className=" rounded-xl shadow-lg mx-4 md:mx-6 lg:mx-8 mt-16">
         <div className="p-6 space-y-6">
@@ -255,6 +279,46 @@ const MarketPlace = () => {
             </div>
           )}
         </div>
+        {/* Pagination Controls */}
+        {pagination.pages > 1 && (
+          <div className="flex justify-center mt-8 text-black">
+            <nav className="flex items-center gap-2">
+              <button
+                onClick={() => handlePageChange(pagination.page - 1)}
+                disabled={pagination.page === 1}
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-green-400 
+                         hover:bg-green-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Previous
+              </button>
+
+              {Array.from({ length: pagination.pages }, (_, i) => i + 1).map(
+                (page) => (
+                  <button
+                    key={page}
+                    onClick={() => handlePageChange(page)}
+                    className={`px-4 py-2 rounded-lg border ${
+                      pagination.page === page
+                        ? "bg-green-600 text-white border-green-600"
+                        : "border-slate-200 hover:bg-green-50"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                )
+              )}
+
+              <button
+                onClick={() => handlePageChange(pagination.page + 1)}
+                disabled={pagination.page === pagination.pages}
+                className="px-4 py-2 rounded-lg border border-slate-200 bg-green-400
+                         hover:bg-green-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Next
+              </button>
+            </nav>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -105,6 +105,7 @@ const CreateListing = () => {
         throw new Error("Only vendors can manage listings");
       }
 
+      // Image validation (only required for new products)
       if (!isEditing && !imageFile) {
         throw new Error("Please upload a product image");
       }
@@ -136,6 +137,7 @@ const CreateListing = () => {
         imageUrl = uploadData.secure_url;
       }
 
+      // Prepare product data (without FeaturedRequest for edits)
       const productData = {
         ...formData,
         image: imageUrl,
@@ -151,6 +153,7 @@ const CreateListing = () => {
 
       const method = isEditing ? "PUT" : "POST";
 
+      // First submit the product data
       const response = await fetch(url, {
         method,
         headers: {
@@ -166,6 +169,26 @@ const CreateListing = () => {
         throw new Error(
           data.message || `Failed to ${isEditing ? "update" : "create"} product`
         );
+      }
+
+      // If this is an edit and FeaturedRequest is "Pending", use the special endpoint
+      if (isEditing && formData.FeaturedRequest === "Pending") {
+        const featureResponse = await fetch(
+          `http://localhost:5000/product/request-feature/${id}`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `${authToken}`,
+            },
+          }
+        );
+
+        if (!featureResponse.ok) {
+          const featureData = await featureResponse.json();
+          throw new Error(
+            featureData.message || "Failed to submit feature request"
+          );
+        }
       }
 
       // Reset form if creating new product
@@ -188,7 +211,13 @@ const CreateListing = () => {
         setImagePreview("");
       }
 
-      setMessage(`Product ${isEditing ? "updated" : "created"} successfully!`);
+      setMessage(
+        `Product ${isEditing ? "updated" : "created"} successfully!${
+          isEditing && formData.FeaturedRequest === "Pending"
+            ? " Feature request submitted."
+            : ""
+        }`
+      );
 
       // Redirect after successful edit
       if (isEditing) {

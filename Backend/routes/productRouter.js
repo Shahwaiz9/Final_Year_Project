@@ -195,22 +195,50 @@ router.put("/:id", Authenticated, async (req, res) => {
 
 router.get("/search/:key", Authenticated, async (req, res) => {
   try {
-    const products = await product.find({
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const query = {
       $or: [
         { productname: { $regex: req.params.key, $options: "i" } },
         { description: { $regex: req.params.key, $options: "i" } },
         { keywords: { $regex: req.params.key, $options: "i" } },
       ],
+    };
+
+    const [products, total] = await Promise.all([
+      product
+        .find(query)
+        .populate("vendor", "CompanyName")
+        .skip(skip)
+        .limit(limit),
+      product.countDocuments(query),
+    ]);
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({
+        success: true,
+        message: "No Relevant Products available",
+        products: [],
+        pagination: {
+          total: 0,
+          page,
+          pages: 0,
+        },
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Search Results",
+      products,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+      },
     });
-
-    if (!products)
-      return res
-        .status(403)
-        .json({ message: "No Relevant Products available" });
-
-    return res
-      .status(200)
-      .json({ success: true, message: "Search Results", products: products });
   } catch (e) {
     return res
       .status(500)

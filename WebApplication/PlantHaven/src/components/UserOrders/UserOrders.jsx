@@ -3,8 +3,10 @@ import { useState, useEffect } from "react";
 const UserOrders = () => {
   const authToken = localStorage.getItem("authToken");
   const [orders, setOrders] = useState([]);
+  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [activeFilter, setActiveFilter] = useState("all");
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -24,6 +26,7 @@ const UserOrders = () => {
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setOrders(sortedOrders);
+        setFilteredOrders(sortedOrders);
       } catch (err) {
         setError(err.message || "Error loading orders");
       } finally {
@@ -34,29 +37,98 @@ const UserOrders = () => {
     fetchOrders();
   }, [authToken]);
 
+  // Filter orders based on active filter
+  useEffect(() => {
+    if (activeFilter === "all") {
+      setFilteredOrders(orders);
+    } else {
+      setFilteredOrders(
+        orders.filter((order) => order.status === activeFilter)
+      );
+    }
+  }, [activeFilter, orders]);
+
   // Format date using native JavaScript
   const formatDate = (dateString) => {
     const options = { year: "numeric", month: "short", day: "numeric" };
     return new Date(dateString).toLocaleDateString("en-US", options);
   };
 
-  if (loading) return <div className="text-center py-8">Loading orders...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
 
   if (error)
-    return <div className="text-center py-8 text-red-600">{error}</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center py-8 text-red-600">{error}</div>
+      </div>
+    );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#759e9e] to-[#00c7c7] py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mt-22 mx-auto">
-        <h1 className="text-3xl font-bold text-slate-900 mb-8">Your Orders</h1>
+        <h1 className="text-3xl font-bold text-slate-900 mb-4">Your Orders</h1>
+
+        {/* Filter Tabs */}
+        <div className="flex flex-wrap gap-2 mb-8">
+          <button
+            onClick={() => setActiveFilter("all")}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeFilter === "all"
+                ? "bg-white text-green-700 shadow-md"
+                : "bg-white/50 text-slate-700 hover:bg-white/80"
+            }`}
+          >
+            All Orders
+          </button>
+          <button
+            onClick={() => setActiveFilter("Pending")}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeFilter === "Pending"
+                ? "bg-white text-yellow-700 shadow-md"
+                : "bg-white/50 text-slate-700 hover:bg-white/80"
+            }`}
+          >
+            Pending
+          </button>
+          <button
+            onClick={() => setActiveFilter("Processing")}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeFilter === "Processing"
+                ? "bg-white text-blue-700 shadow-md"
+                : "bg-white/50 text-slate-700 hover:bg-white/80"
+            }`}
+          >
+            Processing
+          </button>
+          <button
+            onClick={() => setActiveFilter("Delivered")}
+            className={`px-4 py-2 rounded-lg font-medium ${
+              activeFilter === "Delivered"
+                ? "bg-white text-green-700 shadow-md"
+                : "bg-white/50 text-slate-700 hover:bg-white/80"
+            }`}
+          >
+            Delivered
+          </button>
+        </div>
 
         <div className="space-y-6">
-          {orders.length === 0 ? (
+          {filteredOrders.length === 0 ? (
             <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-              <p className="text-slate-600 text-lg">No orders found</p>
+              <p className="text-slate-600 text-lg">
+                {activeFilter === "all"
+                  ? "No orders found"
+                  : `No ${activeFilter.toLowerCase()} orders found`}
+              </p>
             </div>
           ) : (
-            orders.map((order) => (
+            filteredOrders.map((order) => (
               <div
                 key={order._id}
                 className="bg-white rounded-xl shadow-lg p-6"

@@ -370,7 +370,7 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
     localStorage.removeItem("user");
     localStorage.removeItem("authToken");
     setIsAuthenticated(false);
-    navigate("/");
+    navigate("/login");
   };
 
   // Delete product
@@ -551,8 +551,16 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-50 text-red-600">
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-red-600">
         Error: {error}
+        <p className="m-2">You need to SignIn again</p>
+        <button
+          onClick={logout}
+          className="py-2 px-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 
+                     text-white font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl"
+        >
+          Logout
+        </button>
       </div>
     );
   }
@@ -1205,7 +1213,7 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
                           setProductsPage((p) => Math.max(1, p - 1))
                         }
                         disabled={productsPage === 1}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                        className="px-4 py-2 bg-teal-600 text-white rounded-lg disabled:opacity-50 hover:bg-teal-800 transition-colors"
                       >
                         Previous
                       </button>
@@ -1219,7 +1227,7 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
                           )
                         }
                         disabled={productsPage === totalProductPages}
-                        className="px-4 py-2 bg-white border border-gray-300 rounded-lg disabled:opacity-50 hover:bg-gray-50 transition-colors"
+                        className="px-4 py-2 bg-teal-600 text-white rounded-lg disabled:opacity-50 hover:bg-teal-800 transition-colors"
                       >
                         Next
                       </button>

@@ -50,10 +50,10 @@ const Product = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-400 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mx-auto">
         {/* Main Product Container */}
-        <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-slate-300 mt-24">
+        <div className="bg-white rounded-2xl shadow-3xl overflow-hidden border-slate-300 border-2 mt-24">
           <div className="flex flex-col lg:flex-row">
             {/* Image Section - Enhanced */}
             <div className="lg:w-1/2 p-8 bg-gradient-to-br from-slate-50 to-green-50 relative group">
@@ -205,6 +205,7 @@ const Product = () => {
                             strokeLinejoin="round"
                             strokeWidth={2}
                             d="M20 12H4"
+                            color="black"
                           />
                         </svg>
                       </button>
@@ -234,6 +235,7 @@ const Product = () => {
                             strokeLinejoin="round"
                             strokeWidth={2}
                             d="M12 4v16m8-8H4"
+                            color="black"
                           />
                         </svg>
                       </button>

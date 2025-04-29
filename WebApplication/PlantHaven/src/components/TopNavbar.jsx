@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/PlantHavenLogo.png";
 
 const navItems = [
@@ -13,7 +12,8 @@ const navItems = [
 const TopNavbar = () => {
   const [nav, setNav] = useState(false);
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user")); // Moved inside component
+  const location = useLocation();
+  const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
     if (nav) {
@@ -38,7 +38,11 @@ const TopNavbar = () => {
   const logout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("authToken");
-    location.reload(); // Refresh the page to update the UI
+    window.location.reload();
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
   };
 
   return (
@@ -62,13 +66,21 @@ const TopNavbar = () => {
               <li key={item.id} className="list-none">
                 <Link
                   to={item.path}
-                  className="px-5 py-2.5 rounded-lg hover:bg-[#276749] 
+                  className={`px-5 py-2.5 rounded-lg hover:bg-[#276749] 
                            transition-all duration-300 cursor-pointer
-                           border-b-3 border-transparent
+                           border-b-3 ${
+                             isActive(item.path)
+                               ? "border-[#68d391]"
+                               : "border-transparent"
+                           }
                            hover:border-[#68d391] font-medium
-                           text-black hover:text-[#c6f6d5]
+                           ${
+                             isActive(item.path)
+                               ? "text-[#c6f6d5] bg-[#276749]"
+                               : "text-black hover:text-[#c6f6d5]"
+                           }
                            focus:outline-none focus-visible:ring-2 
-                           focus-visible:ring-[#68d391]"
+                           focus-visible:ring-[#68d391]`}
                 >
                   {item.text}
                 </Link>
@@ -78,12 +90,12 @@ const TopNavbar = () => {
               <li
                 onClick={logout}
                 className="list-none px-5 py-2.5 rounded-lg hover:bg-[#276749] 
-                           transition-all duration-300 cursor-pointer
-                           border-b-3 border-transparent
-                           hover:border-[#68d391] font-medium
-                           text-black hover:text-[#c6f6d5]
-                           focus:outline-none focus-visible:ring-2 
-                           focus-visible:ring-[#68d391]"
+                         transition-all duration-300 cursor-pointer
+                         border-b-3 border-transparent
+                         hover:border-[#68d391] font-medium
+                         text-black hover:text-[#c6f6d5]
+                         focus:outline-none focus-visible:ring-2 
+                         focus-visible:ring-[#68d391]"
               >
                 LogOut
               </li>
@@ -91,13 +103,21 @@ const TopNavbar = () => {
               <li className="list-none">
                 <Link
                   to="/login"
-                  className="px-5 py-2.5 rounded-lg hover:bg-[#276749] 
+                  className={`px-5 py-2.5 rounded-lg hover:bg-[#276749] 
                            transition-all duration-300 cursor-pointer
-                           border-b-3 border-transparent
+                           border-b-3 ${
+                             isActive("/login")
+                               ? "border-[#68d391]"
+                               : "border-transparent"
+                           }
                            hover:border-[#68d391] font-medium
-                           text-black hover:text-[#c6f6d5]
+                           ${
+                             isActive("/login")
+                               ? "text-[#c6f6d5] bg-[#276749]"
+                               : "text-black hover:text-[#c6f6d5]"
+                           }
                            focus:outline-none focus-visible:ring-2 
-                           focus-visible:ring-[#68d391]"
+                           focus-visible:ring-[#68d391]`}
                 >
                   LogIn
                 </Link>
@@ -168,18 +188,24 @@ const TopNavbar = () => {
             <Link
               key={item.id}
               to={item.path}
-              className="text-2xl font-medium text-gray-900 hover:text-[#c6f6d5] border-b-3 border-transparent
+              className={`text-2xl font-medium ${
+                isActive(item.path)
+                  ? "text-[#c6f6d5] bg-[#276749]"
+                  : "text-gray-900 hover:text-[#c6f6d5]"
+              } border-b-3 ${
+                isActive(item.path) ? "border-[#68d391]" : "border-transparent"
+              }
                        transition-colors duration-300 py-2.5 px-5 rounded-lg
                        hover:bg-[#276749] hover:border-[#68d391] cursor-pointer
                        focus:outline-none focus-visible:ring-2 
-                       focus-visible:ring-[#68d391]"
+                       focus-visible:ring-[#68d391]`}
               onClick={closeMobileMenu}
             >
               {item.text}
             </Link>
           ))}
 
-          {/* Mobile Login/Logout Button */}
+          {/* Mobile Logout Button - unchanged */}
           {user ? (
             <button
               onClick={() => {
@@ -197,11 +223,17 @@ const TopNavbar = () => {
           ) : (
             <Link
               to="/login"
-              className="text-2xl font-medium text-gray-900 hover:text-[#c6f6d5] border-b-3 border-transparent
+              className={`text-2xl font-medium ${
+                isActive("/login")
+                  ? "text-[#c6f6d5] bg-[#276749]"
+                  : "text-gray-900 hover:text-[#c6f6d5]"
+              } border-b-3 ${
+                isActive("/login") ? "border-[#68d391]" : "border-transparent"
+              }
                        transition-colors duration-300 py-2.5 px-5 rounded-lg
                        hover:bg-[#276749] hover:border-[#68d391] cursor-pointer
                        focus:outline-none focus-visible:ring-2 
-                       focus-visible:ring-[#68d391]"
+                       focus-visible:ring-[#68d391]`}
               onClick={closeMobileMenu}
             >
               LogIn

@@ -207,8 +207,8 @@ const ConfirmOrder = () => {
     );
 
   return (
-    <div className="min-h-screen mt-24 bg-gradient-to-br from-slate-50 to-green-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-400 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="mt-24 max-w-3xl mx-auto">
         <h1 className="text-3xl font-bold text-slate-900 mb-8">
           Confirm Your Order
         </h1>
