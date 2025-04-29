@@ -21,7 +21,7 @@ import UserOrders from "./components/UserOrders/UserOrders.jsx";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import AdminPanel from "./components/Admin/AdminPanel.jsx";
-import Home from "./components/Admin/Home.jsx"
+import Home from "./components/Admin/Home.jsx";
 import FeatureRequestPage from "./components/Admin/FeatureRequestPage.jsx";
 import FeaturedProducts from "./components/Admin/FeaturedProducts.jsx";
 import AdminCustomers from "./components/Admin/Admin_Customers.jsx";
@@ -54,9 +54,9 @@ const App = () => {
             <Route path="login" element={<Login />} />
             <Route path="signup/user" element={<SignupPage />} />
             <Route path="signup/vendor" element={<VendorSignup />} />
-        
+
             <Route path="/admin" element={<AdminPanel />}>
-              <Route index element={<Home/>} />
+              <Route index element={<Home />} />
               <Route path="feature-page" element={<FeatureRequestPage />} />
               <Route path="featured-products" element={<FeaturedProducts />} />
               <Route path="customer" element={<AdminCustomers/>} />
@@ -75,7 +75,7 @@ const App = () => {
           <Route path="login" element={<Navigate to="/" />} />
           <Route path="signup/user" element={<Navigate to="/" />} />
           <Route path="signup/vendor" element={<VendorSignup />} />
-          
+
           {parsedUser["role"] == "vendor" ? (
             <>
               <Route path="/" element={<Navigate to="/vendor-homepage" />} />
@@ -86,6 +86,7 @@ const App = () => {
                 }
               />
               <Route path="createlisting" element={<CreateListing />} />
+              <Route path="/edit-product/:id" element={<CreateListing />} />
             </>
           ) : (
             <>
