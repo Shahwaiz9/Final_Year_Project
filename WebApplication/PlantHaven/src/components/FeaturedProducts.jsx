@@ -8,7 +8,7 @@ const FeaturedProducts = () => {
       {
         id: 1,
         name: "Fertlizer",
-        price: "$24.99",
+        price: "Rs. 24.99",
         description: "Nitro Based NPK Fertilizer",
         image:
           "https://risso-chemical.com/wp-content/uploads/2024/04/Bulk-Blending-Fertilizer.png",
@@ -16,7 +16,7 @@ const FeaturedProducts = () => {
       {
         id: 2,
         name: "Afcagari Fetilizer",
-        price: "$29.99",
+        price: "Rs. 29.99",
         description: "Special Fertilizer Class 56",
         image:
           "https://www.flowerscambridge.co.uk/upload/mt/tmf205/products/th_null-plant-care-kit-2.jpg",
@@ -24,7 +24,7 @@ const FeaturedProducts = () => {
       {
         id: 3,
         name: "Lawn Booster Prime",
-        price: "$49.99",
+        price: "Rs. 49.99",
         description: "Lawn Booster Fertilizer 30-0-0",
         image:
           "https://ikesproducts.com/wp-content/uploads/2021/06/Ikes-Product-LawnBooster-Product-2022.png",
@@ -34,7 +34,7 @@ const FeaturedProducts = () => {
       {
         id: 4,
         name: "GoPure House Plants",
-        price: "$399.99",
+        price: "Rs. 399.99",
         description: "Organic House Plant Care Bundle",
         image:
           "https://andermattgarden.co.uk/cdn/shop/products/GROPUREHOUSEPLANTS500MLTRANSPARENT_1f8b2210-6c47-4ec6-9929-5654d6582abb_1293x.png?v=1680794140",
@@ -42,7 +42,7 @@ const FeaturedProducts = () => {
       {
         id: 5,
         name: "Seasol Foilar Spray",
-        price: "$19.99",
+        price: "Rs. 19.99",
         description: "Seasol Foliar Spray | Boost Plant Growth & Health",
         image:
           "https://www.seasol.com.au/wp-content/uploads/2016/09/Seaso-Foliar-Spray-website.png",
@@ -50,7 +50,7 @@ const FeaturedProducts = () => {
       {
         id: 6,
         name: "Pesticide",
-        price: "$59.99",
+        price: "Rs. 59.99",
         description: "Pesticide",
         image:
           "https://orangeprotection.com.pk/cdn/shop/files/Machis.png?v=1706722680&width=550",

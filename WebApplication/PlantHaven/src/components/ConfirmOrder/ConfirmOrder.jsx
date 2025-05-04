@@ -231,10 +231,10 @@ const ConfirmOrder = () => {
               </p>
               <div className="mt-2 flex items-center gap-4">
                 <span className="text-lg font-bold text-green-700">
-                  ${product.price.toFixed(2)} × {quantity}
+                  Rs. {product.price} × {quantity}
                 </span>
                 <span className="text-xl font-bold text-slate-900">
-                  Total: ${(product.price * quantity).toFixed(2)}
+                  Total: Rs. {product.price * quantity}
                 </span>
               </div>
             </div>

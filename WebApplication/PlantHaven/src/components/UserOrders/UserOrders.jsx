@@ -186,7 +186,7 @@ const UserOrders = () => {
                     <div className="flex items-center justify-between">
                       <span className="text-slate-600">Total Amount:</span>
                       <span className="text-lg font-bold text-green-700">
-                        ${order.totalAmount.toFixed(2)}
+                        Rs. {order.totalAmount}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">

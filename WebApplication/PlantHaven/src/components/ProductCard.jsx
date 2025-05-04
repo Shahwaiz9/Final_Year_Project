@@ -158,7 +158,7 @@ const ProductCard = ({ product }) => {
             <div>
               <span className="text-xs text-slate-500">Price</span>
               <p className="text-lg font-bold text-slate-900">
-                ${product.price.toFixed(2)}
+                R.s {product.price}
               </p>
             </div>
             <button
