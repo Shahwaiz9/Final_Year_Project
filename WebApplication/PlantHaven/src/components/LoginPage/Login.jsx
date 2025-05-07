@@ -39,7 +39,7 @@ export default function Login() {
 
       localStorage.setItem(
         "user",
-        JSON.stringify({ name: data.name, email, role: data.role })
+        JSON.stringify({ name: data.name, email, role: data.role,profilePic:data.profilePic })
       );
       localStorage.setItem("authToken", data.jwtToken);
 

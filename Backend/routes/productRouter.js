@@ -86,7 +86,7 @@ router.post("/add", Authenticated, async (req, res) => {
       keywords,
       image,
       quantity,
-      FeaturedRequest, // Add this to destructuring
+      FeaturedRequest,
     } = req.body;
 
     const newProduct = new product({
@@ -110,7 +110,7 @@ router.post("/add", Authenticated, async (req, res) => {
       product: newProduct,
     });
   } catch (e) {
-    console.error("Error adding product:", e); // Log the error for debugging
+    console.error("Error adding product:", e);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 });

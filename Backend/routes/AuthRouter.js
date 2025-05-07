@@ -40,6 +40,7 @@ router.post("/signup/user", signupValidation, async (req, res) => {
       email,
       name: newuser.name,
       role: newuser.role,
+      profilePic: newuser.profilePic,
     });
   } catch (e) {
     res.status(500).json({ message: "Internal server error", success: false });
@@ -70,6 +71,7 @@ router.post("/login/user", loginValidation, async (req, res) => {
       email,
       name: User.name,
       role: User.role,
+      profilePic: User.profilePic,
     });
   } catch (e) {
     res.status(500).json({ message: "internal server error", success: true });
@@ -111,6 +113,7 @@ router.post("/signup/vendor", vendorSignupValidation, async (req, res) => {
       email,
       CompanyName: newVendor.CompanyName,
       role: newVendor.role,
+      profilePic: newVendor.profilePic,
     });
   } catch (e) {
     res.status(500).json({ message: "Internal server error", success: false });
@@ -147,6 +150,7 @@ router.post("/login/vendor", vendorLoginValidation, async (req, res) => {
       email,
       CompanyName: Vendor.CompanyName,
       role: Vendor.role,
+      profilePic: Vendor.profilePic,
     });
   } catch (e) {
     res.status(500).json({ message: "Internal server error", success: false });
