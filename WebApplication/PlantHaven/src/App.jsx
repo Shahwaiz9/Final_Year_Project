@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Login from "./components/LoginPage/Login.jsx";
 import SignupPage from "./components/SignupPage/SignupPage.jsx";
+import EditProfilePage from "./components/EditProfile/EditProfilePage.jsx";
 import Homepage from "./components/HomePage/homepage.jsx";
 import VendorSignup from "./components/SignupPage/VendorSignup.jsx";
 import Modelpage from "./components/ModelPage/Modelpage.jsx";
@@ -59,8 +60,8 @@ const App = () => {
               <Route index element={<Home />} />
               <Route path="feature-page" element={<FeatureRequestPage />} />
               <Route path="featured-products" element={<FeaturedProducts />} />
-              <Route path="customer" element={<AdminCustomers/>} />
-              <Route path="vendor" element={<AdminVendor/>} />
+              <Route path="customer" element={<AdminCustomers />} />
+              <Route path="vendor" element={<AdminVendor />} />
             </Route>
 
             <Route path="/" element={<MainLayout />}>
@@ -92,6 +93,7 @@ const App = () => {
             <>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Homepage />} />
+                <Route path="/edit-profile" element={<EditProfilePage />} />
                 <Route path="model" element={<Modelpage />} />
                 <Route path="marketplace" element={<MarketPlace />} />
                 <Route path="Product/:id" element={<Product />} />
