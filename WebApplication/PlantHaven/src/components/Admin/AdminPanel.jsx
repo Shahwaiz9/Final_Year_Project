@@ -1,4 +1,3 @@
-import React from "react";
 import { useState } from "react";
 import "./AdminPanel.css";
 import Header from "./Header";

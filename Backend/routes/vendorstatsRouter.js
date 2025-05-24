@@ -2,6 +2,7 @@ import express from "express";
 import Authenticated from "../middlewares/jwtAuth.js";
 import VendorStats from "../models/vendorstats.js";
 import Product from "../models/product.js";
+import Order from "../models/orders.js";
 
 const router = express.Router();
 
@@ -36,6 +37,25 @@ router.get("/my-products", Authenticated, async (req, res) => {
 
     const products = await Product.find({ vendor: req.user._id });
     res.status(200).json({ success: true, products });
+  } catch (e) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/total-vendor-profit", Authenticated, async (req, res) => {
+  try {
+    if (req.user.role !== "vendor") {
+      return res.status(403).json({ message: "Unauthorized" });
+    }
+
+    const stats = await VendorStats.findOne({ vendor: req.user._id });
+    if (!stats) {
+      return res.status(404).json({ message: "Statistics not found" });
+    }
+
+    res
+      .status(200)
+      .json({ success: true, totalProfit: stats.totalSalesAmount });
   } catch (e) {
     res.status(500).json({ success: false, message: "Internal server error" });
   }

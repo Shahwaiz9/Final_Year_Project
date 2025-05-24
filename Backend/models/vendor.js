@@ -32,6 +32,11 @@ const vendorSchema = mongoose.Schema({
     default:
       "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQVNFido6pvUKgR3KB2iGco6cEOFIu7fpun0A&s",
   },
+  accountStatus: {
+    type: String,
+    enum: ["Active", "Suspended"],
+    default: "Active",
+  },
 });
 
 const vendor = mongoose.model("vendors", vendorSchema);

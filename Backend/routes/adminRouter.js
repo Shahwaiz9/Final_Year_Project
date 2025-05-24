@@ -3,6 +3,7 @@ import product from "../models/product.js";
 import user from "../models/user.js";
 import vendor from "../models/vendor.js";
 import VendorStats from "../models/vendorstats.js";
+import orders from "../models/orders.js";
 
 const router = express.Router();
 
@@ -126,11 +127,10 @@ router.post("/feature-request/:id", async (req, res) => {
   }
 });
 
-
 router.get("/vendor", async (req, res) => {
   try {
     const vendors = await vendor.find({});
-   
+
     res.status(200).json({
       success: true,
       vendors,
@@ -144,10 +144,7 @@ router.get("/vendor", async (req, res) => {
 router.get("/customers", async (req, res) => {
   try {
     const users = await user.find({});
-   
-    
 
-    
     res.status(200).json({
       success: true,
       users,
@@ -155,6 +152,52 @@ router.get("/customers", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
+  }
+});
+
+router.get("/orders", async (req, res) => {
+  try {
+    const ordersData = await orders
+      .find({})
+      .populate("user", "name email")
+      .populate({
+        path: "product",
+        select: "productname price vendor",
+        populate: {
+          path: "vendor",
+          select: "contact",
+        },
+      });
+
+    res.status(200).json({
+      success: true,
+      orders: ordersData,
+    });
+  } catch (e) {
+    res.status.json({ success: false, message: "internal server error" });
+  }
+});
+
+router.post("/vendor/:id", async (req, res) => {
+  try {
+    const Vendor = await vendor.findById(req.params.id);
+    if (!Vendor) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Vendor not found" });
+    }
+    if (Vendor.accountStatus === "Active") {
+      Vendor.accountStatus = "Suspended";
+    } else {
+      Vendor.accountStatus = "Active";
+    }
+    await Vendor.save();
+    res
+      .status(200)
+      .json({ success: true, message: "Vendor status updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 

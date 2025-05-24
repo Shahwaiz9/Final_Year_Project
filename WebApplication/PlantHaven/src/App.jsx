@@ -27,6 +27,7 @@ import FeatureRequestPage from "./components/Admin/FeatureRequestPage.jsx";
 import FeaturedProducts from "./components/Admin/FeaturedProducts.jsx";
 import AdminCustomers from "./components/Admin/Admin_Customers.jsx";
 import AdminVendor from "./components/Admin/Admin_Vendor.jsx";
+import AdminOrder from "./components/Admin/Admin_Orders.jsx";
 const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
 const App = () => {
@@ -62,6 +63,7 @@ const App = () => {
               <Route path="featured-products" element={<FeaturedProducts />} />
               <Route path="customer" element={<AdminCustomers />} />
               <Route path="vendor" element={<AdminVendor />} />
+              <Route path="orders" element={<AdminOrder />} />
             </Route>
 
             <Route path="/" element={<MainLayout />}>

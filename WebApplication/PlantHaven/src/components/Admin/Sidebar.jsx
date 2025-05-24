@@ -7,7 +7,7 @@ import {
   BsFillGrid3X3GapFill,
   BsPeopleFill,
   BsListCheck,
-  BsMenuButtonWideFill,
+  BsCartFill,
   BsFillGearFill
 } from 'react-icons/bs';
 
@@ -18,7 +18,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
     { icon: BsFillGrid3X3GapFill, title: 'Feautured Products', path: '/admin/featured-products' },
     { icon: BsPeopleFill, title: 'Customers', path: '/admin/customer' },
     { icon: BsListCheck, title: 'Vendors', path: '/admin/vendor' },
-    { icon: BsMenuButtonWideFill, title: 'Reports', path: '/admin' },
+    { icon: BsCartFill, title: 'Orders', path: '/admin/orders' },
     { icon: BsFillGearFill, title: 'Settings', path: '/settings' }
   ];
 
