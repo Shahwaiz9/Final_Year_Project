@@ -1,6 +1,7 @@
 import express from "express";
 import Authenticated from "../middlewares/jwtAuth.js";
 import product from "../models/product.js";
+import rating from "../models/rating.js";
 
 const router = express.Router();
 
@@ -279,6 +280,108 @@ router.get("/request-feature/:id", Authenticated, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
+  }
+});
+
+router.post("/:id/ratings", Authenticated, async (req, res) => {
+  try {
+    if (req.user !== "user") {
+      return res.status(403).json({ message: "Only users can add ratings" });
+    }
+
+    const checkRating = await rating.findOne({
+      user: req.user._id,
+      product: req.params.id,
+    });
+
+    if (checkRating) {
+      return res
+        .status(400)
+        .json({ message: "You have already rated this product" });
+    }
+
+    const Product = await product.findById(req.params.id);
+    if (!Product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+    const { Rating, comment } = req.body;
+    if (!Rating || Rating < 1 || Rating > 5) {
+      return res.status(400).json({ message: "Invalid rating value" });
+    }
+    const newRating = new rating({
+      rating: Rating,
+      comment: comment,
+      user: req.user._id,
+      product: Product._id,
+    });
+    await newRating.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Rating added successfully",
+      rating: newRating,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.post("/:id/ratings", Authenticated, async (req, res) => {
+  try {
+    if (req.user.role !== "user") {
+      return res.status(403).json({ message: "Only users can update ratings" });
+    }
+    const { Rating, comment } = req.body;
+    const ratingToUpdate = await rating.findOne({
+      user: req.user._id,
+      product: req.params.id,
+    });
+    if (!ratingToUpdate) {
+      return res.status(404).json({ message: "Rating not found" });
+    }
+
+    ratingToUpdate.rating = Rating || ratingToUpdate.rating;
+    ratingToUpdate.comment = comment || ratingToUpdate.comment;
+    await ratingToUpdate.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "Rating updated successfully",
+      rating: ratingToUpdate,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/:id/ratings", Authenticated, async (req, res) => {
+  try {
+    const Rating = await rating
+      .find({ product: req.params.id })
+      .populate("user", "name");
+    let totalRating = 0;
+
+    if (!Rating || Rating.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No ratings found for this product" });
+    }
+
+    Rating.forEach((ratings) => {
+      totalRating += ratings.rating;
+    });
+    totalRating = totalRating / Rating.length;
+
+    res.status(200).json({
+      success: true,
+      message: "Ratings retrieved successfully",
+      ratings: totalRating,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 });
 
