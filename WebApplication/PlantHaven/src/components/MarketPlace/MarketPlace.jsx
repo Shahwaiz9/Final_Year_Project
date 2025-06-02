@@ -13,7 +13,7 @@ const MarketPlace = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [pagination, setPagination] = useState({
     page: 1,
-    limit: 4,
+    limit: 8,
     total: 0,
     pages: 1,
   });
@@ -88,15 +88,33 @@ const MarketPlace = () => {
   const uniqueVendors = [...new Set(products.map((p) => p.vendor.CompanyName))];
 
   // Filter logic
-  const filteredProducts = products.filter((product) => {
-    const matchesType = selectedType === "all" || product.type === selectedType;
-    const matchesVendor =
-      selectedVendor === "all" || product.vendor.CompanyName === selectedVendor;
-    const matchesPrice =
-      product.price >= priceRange[0] && product.price <= priceRange[1];
+  const filteredProducts = products
+    .filter((product) => {
+      const matchesType =
+        selectedType === "all" || product.type === selectedType;
+      const matchesVendor =
+        selectedVendor === "all" ||
+        product.vendor.CompanyName === selectedVendor;
+      const matchesPrice =
+        product.price >= priceRange[0] && product.price <= priceRange[1];
 
-    return matchesType && matchesVendor && matchesPrice;
-  });
+      return matchesType && matchesVendor && matchesPrice;
+    })
+    .reduce(
+      (acc, product) => {
+        // Separate featured and non-featured products
+        if (product.isFeatured) {
+          acc.featured.push(product);
+        } else {
+          acc.regular.push(product);
+        }
+        return acc;
+      },
+      { featured: [], regular: [] }
+    );
+
+  const limitedFeatured = filteredProducts.featured.slice(0, 4);
+  const finalProducts = [...limitedFeatured, ...filteredProducts.regular];
 
   // Search handler
   const handleSearch = (e) => {
@@ -267,8 +285,8 @@ const MarketPlace = () => {
       {/* Product Grid */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
+          {finalProducts.length > 0 ? (
+            finalProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))
           ) : (

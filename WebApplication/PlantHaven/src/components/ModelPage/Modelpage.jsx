@@ -2,8 +2,8 @@
 /* eslint-disable react/no-children-prop */
 import { useState, useRef } from "react";
 import Webcam from "react-webcam";
-import AIPlantImage from '../../assets/AIPlant.png';
-import ReactMarkdown from "react-markdown"; // 🆕 Import added
+import AIPlantImage from "../../assets/AIPlant.png";
+import ReactMarkdown from "react-markdown";
 
 import {
   Container,
@@ -84,7 +84,11 @@ const ImageChatbot = () => {
       const data = await res.json();
       console.log("Received data:", data);
 
-      if ((Array.isArray(data.prediction[0]) || typeof data.prediction[0] === 'string') && data.prediction.length > 0) {
+      if (
+        (Array.isArray(data.prediction[0]) ||
+          typeof data.prediction[0] === "string") &&
+        data.prediction.length > 0
+      ) {
         const label = data.prediction[0];
         setResponse(`${label}`);
         await fetchRemedies(label);
@@ -136,10 +140,16 @@ const ImageChatbot = () => {
   };
 
   return (
-    <div className="background" style={{ backgroundImage: `url(${AIPlantImage})` }}>
+    <div
+      className="background"
+      style={{ backgroundImage: `url(${AIPlantImage})` }}
+    >
       <div className="overlay"></div>
 
-      <Container maxWidth="sm" sx={{ mt: 10, mb: 10, position: "relative", zIndex: 1 }}>
+      <Container
+        maxWidth="sm"
+        sx={{ mt: 10, mb: 10, position: "relative", zIndex: 1 }}
+      >
         <Card
           className="modelcard"
           sx={{
@@ -154,7 +164,11 @@ const ImageChatbot = () => {
           }}
         >
           <CardContent>
-            <Typography variant="h4" gutterBottom sx={{ color: "black", fontWeight: "bold" }}>
+            <Typography
+              variant="h4"
+              gutterBottom
+              sx={{ color: "black", fontWeight: "bold" }}
+            >
               Detect Disease
             </Typography>
 
@@ -182,7 +196,12 @@ const ImageChatbot = () => {
               variant="outlined"
               startIcon={<CameraAltIcon />}
               onClick={() => setShowCamera(!showCamera)}
-              sx={{ mt: 2, backgroundColor: "#26A66b", color: "white", borderColor: "#26A66b" }}
+              sx={{
+                mt: 2,
+                backgroundColor: "#26A66b",
+                color: "white",
+                borderColor: "#26A66b",
+              }}
             >
               {showCamera ? "Close Camera" : "Open Camera"}
             </Button>
@@ -214,7 +233,7 @@ const ImageChatbot = () => {
 
             {/* Image Preview */}
             {preview && (
-              <Box sx={{ mt: 2, display: 'flex', justifyContent: "center" }}>
+              <Box sx={{ mt: 2, display: "flex", justifyContent: "center" }}>
                 <img
                   src={preview}
                   alt="Preview"
@@ -236,7 +255,11 @@ const ImageChatbot = () => {
               sx={{ mt: 2, backgroundColor: "#26A66b" }}
               disabled={loading}
             >
-              {loading ? <CircularProgress size={24} color="inherit" /> : "Get Prediction"}
+              {loading ? (
+                <CircularProgress size={24} color="inherit" />
+              ) : (
+                "Get Prediction"
+              )}
             </Button>
 
             {/* Response Field */}
@@ -258,8 +281,19 @@ const ImageChatbot = () => {
             {/* Remedies */}
             {flag ? (
               <Fade in={!!remediesResponse} timeout={1000}>
-                <Box sx={{ mt: 3, p: 2, backgroundColor: "rgba(0, 0, 0, 0.05)", borderRadius: "8px", textAlign: "left" }}>
-                  <Typography variant="h6" sx={{ color: "black", fontWeight: "bold", mb: 2 }}>
+                <Box
+                  sx={{
+                    mt: 3,
+                    p: 2,
+                    backgroundColor: "rgba(0, 0, 0, 0.05)",
+                    borderRadius: "8px",
+                    textAlign: "left",
+                  }}
+                >
+                  <Typography
+                    variant="h6"
+                    sx={{ color: "black", fontWeight: "bold", mb: 2 }}
+                  >
                     Remedies & Treatments:
                   </Typography>
 
@@ -269,14 +303,38 @@ const ImageChatbot = () => {
                     <ReactMarkdown
                       children={remediesResponse}
                       components={{
-                        h2: ({ node, ...props }) => <Typography variant="h5" sx={{ fontWeight: "bold", mt: 2 }} {...props} />,
-                        h3: ({ node, ...props }) => <Typography variant="h6" sx={{ fontWeight: "bold", mt: 2 }} {...props} />,
-                        p: ({ node, ...props }) => <Typography sx={{ mt: 1 }} {...props} />,
-                        li: ({ node, ...props }) => <li style={{ marginBottom: '0.5em' }} {...props} />,
-                        strong: ({ node, ...props }) => <strong style={{ color: 'rgb(0, 168, 95)', textShadow: '0px 0px 2px black'
-
-                        }} {...props} />,
-                        em: ({ node, ...props }) => <em style={{ fontStyle: 'italic' }} {...props} />,
+                        h2: ({ node, ...props }) => (
+                          <Typography
+                            variant="h5"
+                            sx={{ fontWeight: "bold", mt: 2 }}
+                            {...props}
+                          />
+                        ),
+                        h3: ({ node, ...props }) => (
+                          <Typography
+                            variant="h6"
+                            sx={{ fontWeight: "bold", mt: 2 }}
+                            {...props}
+                          />
+                        ),
+                        p: ({ node, ...props }) => (
+                          <Typography sx={{ mt: 1 }} {...props} />
+                        ),
+                        li: ({ node, ...props }) => (
+                          <li style={{ marginBottom: "0.5em" }} {...props} />
+                        ),
+                        strong: ({ node, ...props }) => (
+                          <strong
+                            style={{
+                              color: "rgb(0, 168, 95)",
+                              textShadow: "0px 0px 2px black",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        em: ({ node, ...props }) => (
+                          <em style={{ fontStyle: "italic" }} {...props} />
+                        ),
                       }}
                     />
                   )}
@@ -295,43 +353,6 @@ const ImageChatbot = () => {
 };
 
 export default ImageChatbot;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import { useState } from "react";
 // import {
@@ -355,7 +376,7 @@ export default ImageChatbot;
 //   const [remediesResponse, setRemediesResponse] = useState("");
 //   const [loading, setLoading] = useState(false);
 //   const [loadingRemedies, setLoadingRemedies] = useState(false);
- 
+
 //   const [flag, setFlag] = useState(true);
 
 //   // Handle image upload
@@ -375,27 +396,27 @@ export default ImageChatbot;
 //       alert("Please upload an image first.");
 //       return;
 //     }
-  
+
 //     setLoading(true);
 //     const formData = new FormData();
 //     formData.append("image", image);
-  
+
 //     try {
 //       const res = await fetch("http://localhost:5000/predict", {
 //         method: "POST",
 //         body: formData,
 //       });
-  
+
 //       const data = await res.json();
 //       console.log("Received data:", data);
-  
+
 //       if (Array.isArray(data.prediction) && data.prediction.length > 1) {
 //         const label = data.prediction[0].label || "Unknown";
 //         const confidence = data.prediction[1] || "Confidence unavailable";
-        
+
 //         // Update response first
 //         setResponse(`${label}, ${confidence}`);
-  
+
 //         // Ensure we wait for remedies to be fetched
 //         await fetchRemedies(label);
 //       } else {
@@ -405,10 +426,10 @@ export default ImageChatbot;
 //       console.error("Error:", error);
 //       setResponse("Error processing the image.");
 //     }
-  
+
 //     setLoading(false);
 //   };
-  
+
 //   // Fetch remedies based on detected disease
 //   const fetchRemedies = async (disease) => {
 //     if (!disease || typeof disease !== "string") {
@@ -416,15 +437,15 @@ export default ImageChatbot;
 //       setRemediesResponse("Error: Invalid disease name.");
 //       return;
 //     }
-  
+
 //     const userToken = localStorage.getItem("authToken");
 //     if (!userToken) {
 //       setFlag(false);
 //       return;
 //     }
-  
+
 //     setLoadingRemedies(true);
-  
+
 //     try {
 //       console.log("Fetching remedies for:", disease);
 //       const res = await fetch("http://localhost:5000/predict/remedies", {
@@ -434,10 +455,10 @@ export default ImageChatbot;
 //         },
 //         body: JSON.stringify({ disease }),
 //       });
-  
+
 //       const data = await res.json();
 //       console.log("Received remedies:", data);
-  
+
 //       if (data.remedies) {
 //         setRemediesResponse(data.remedies);
 //       } else {
@@ -447,10 +468,10 @@ export default ImageChatbot;
 //       console.error("Error:", error);
 //       setRemediesResponse("Error fetching remedies.");
 //     }
-  
+
 //     setLoadingRemedies(false);
 //   };
-  
+
 //   return (
 //     <div className="background">
 //       <div className="overlay"></div>
@@ -544,7 +565,6 @@ export default ImageChatbot;
 //               placeholder="AI response will appear here..."
 //             />
 
-            
 //             {/* Remedies Section - Only shows if user is logged in */}
 //             {flag ? (
 //               <Fade in={!!remediesResponse} timeout={1000}>
