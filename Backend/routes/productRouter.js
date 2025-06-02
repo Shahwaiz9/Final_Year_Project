@@ -327,7 +327,7 @@ router.post("/:id/ratings", Authenticated, async (req, res) => {
   }
 });
 
-router.post("/:id/ratings", Authenticated, async (req, res) => {
+router.put("/:id/ratings", Authenticated, async (req, res) => {
   try {
     if (req.user.role !== "user") {
       return res.status(403).json({ message: "Only users can update ratings" });
@@ -358,9 +358,7 @@ router.post("/:id/ratings", Authenticated, async (req, res) => {
 
 router.get("/:id/ratings", Authenticated, async (req, res) => {
   try {
-    const Rating = await rating
-      .find({ product: req.params.id })
-      .populate("user", "name");
+    const Rating = await rating.find({ product: req.params.id });
     let totalRating = 0;
 
     if (!Rating || Rating.length === 0) {
@@ -378,6 +376,29 @@ router.get("/:id/ratings", Authenticated, async (req, res) => {
       success: true,
       message: "Ratings retrieved successfully",
       ratings: totalRating,
+      allratings: Rating,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/:id/ratings/user", Authenticated, async (req, res) => {
+  try {
+    const userRating = await rating.findOne({
+      user: req.user._id,
+      product: req.params.id,
+    });
+
+    if (!userRating) {
+      return res.status(404).json({ message: "User rating not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "User rating retrieved successfully",
+      rating: userRating,
     });
   } catch (e) {
     console.error(e);
