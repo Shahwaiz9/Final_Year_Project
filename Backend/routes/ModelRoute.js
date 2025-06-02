@@ -15,7 +15,7 @@ const upload = multer({ dest: "uploads/" });
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 const GROQ_URL = "https://api.groq.com/openai/v1/chat/completions";
 
-// ✅ AI Prediction Route (handles camera and file uploads)
+// AI Prediction Route (handles camera and file uploads)
 router.post("/", upload.single("image"), async (req, res) => {
   try {
     let imageBlob;
@@ -29,7 +29,10 @@ router.post("/", upload.single("image"), async (req, res) => {
       fs.unlinkSync(req.file.path);
     } else if (req.body.imageBase64) {
       // Image sent from camera as base64 string
-      const base64Data = req.body.imageBase64.replace(/^data:image\/\w+;base64,/, "");
+      const base64Data = req.body.imageBase64.replace(
+        /^data:image\/\w+;base64,/,
+        ""
+      );
       const buffer = Buffer.from(base64Data, "base64");
       imageBlob = new Blob([buffer]);
     } else {

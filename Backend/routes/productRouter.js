@@ -285,7 +285,7 @@ router.get("/request-feature/:id", Authenticated, async (req, res) => {
 
 router.post("/:id/ratings", Authenticated, async (req, res) => {
   try {
-    if (req.user !== "user") {
+    if (req.user.role !== "user") {
       return res.status(403).json({ message: "Only users can add ratings" });
     }
 
