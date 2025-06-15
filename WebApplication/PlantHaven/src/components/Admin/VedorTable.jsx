@@ -1,34 +1,42 @@
-import * as React from 'react';
-import Paper from '@mui/material/Paper';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TablePagination from '@mui/material/TablePagination';
-import TableRow from '@mui/material/TableRow';
-import axios from 'axios';
-const columns = [
-//   { id: 'name', label: 'Name', minWidth: 170 },
-  {id:'email', label:'Email',minWidth:170},
-  {id:'CompanyName',label:'Company Name',minWidth:170},
-    {id:'CompanyAddress',label:'Company Address',minWidth:170},
-    {id:'contact',label:'Contact',minWidth:170},
+/* eslint-disable react/prop-types */
+import * as React from "react";
+import Paper from "@mui/material/Paper";
+import Table from "@mui/material/Table";
+import TableBody from "@mui/material/TableBody";
+import TableCell from "@mui/material/TableCell";
+import TableContainer from "@mui/material/TableContainer";
+import TableHead from "@mui/material/TableHead";
+import TablePagination from "@mui/material/TablePagination";
+import TableRow from "@mui/material/TableRow";
+import axios from "axios";
+import { Button } from "@mui/material";
 
+const columns = [
+  { id: "email", label: "Email" },
+  { id: "CompanyName", label: "Company Name" },
+  { id: "CompanyAddress", label: "Company Address" },
+  { id: "contact", label: "Contact" },
+  { id: "accountStatus", label: "Status" },
+  { id: "block", label: "Action" },
 ];
 
-function createData( email,CompanyName,CompanyAddress,contact) {
- 
-  return {  email,CompanyName,CompanyAddress,contact };
+function createData(
+  email,
+  CompanyName,
+  CompanyAddress,
+  contact,
+  accountStatus,
+  block
+) {
+  return { email, CompanyName, CompanyAddress, contact, accountStatus, block };
 }
 
-
-
-export default function ColumnGroupingTable({type}) {
-  const [data,setData] = React.useState([]);
+export default function ColumnGroupingTable({ type }) {
+  const [data, setData] = React.useState([]);
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows,setRows] = React.useState([]); 
+  const [rows, setRows] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -38,76 +46,214 @@ export default function ColumnGroupingTable({type}) {
     setRowsPerPage(+event.target.value);
     setPage(0);
   };
- 
+
+  const fetchData = async () => {
+    try {
+      const response = await axios.get(`http://localhost:5000/admin/${type}`);
+      setData(response.data.vendors);
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/admin/${type}`);
-        const result = response.data;
-        setData(result.vendors);
-        console.log(result.users);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      }
-    };
     fetchData();
-    
-  },[]);
-  // Separate effect to update rows whenever data changes
-React.useEffect(() => {
-  const newRows = data.map(user => createData( user.email,user.CompanyName,user.CompanyAddress,user.contact));
-  setRows(newRows);
-}, [data]); // this depends on data
+  }, [type]);
+
+  const handleBlock = async (id) => {
+    try {
+      await axios.post(`http://localhost:5000/admin/vendor/${id}`);
+      fetchData();
+    } catch (error) {
+      console.error("Failed to block vendor:", error);
+    }
+  };
+  const blockButton = (id, status) => {
+    const isBlocked = status === "Suspended";
+
+    return (
+      <Button
+        sx={{
+          backgroundColor: isBlocked ? "green" : "red",
+          color: "white",
+          maxHeight: "3em",
+          fontSize: "0.8rem",
+          "@media (max-width: 1000px)": {
+            fontSize: "0.5rem",
+          },
+          "&:hover": {
+            backgroundColor: isBlocked ? "#006400" : "#8B0000",
+          },
+        }}
+        variant="contained"
+        onClick={() => handleBlock(id)}
+      >
+        {isBlocked ? "Unblock" : "Block"}
+      </Button>
+    );
+  };
+
+  React.useEffect(() => {
+    const newRows = data.map((vendor) =>
+      createData(
+        vendor.email,
+        vendor.CompanyName,
+        vendor.CompanyAddress,
+        vendor.contact,
+        vendor.accountStatus,
+        blockButton(vendor._id, vendor.accountStatus)
+      )
+    );
+    setRows(newRows);
+  }, [data]);
 
   return (
-<Paper sx={{ width: '80vw', backgroundColor: 'gray', color: 'white', overflow: 'hidden', borderRadius: '10px',marginLeft:'20px' }}>
-<TableContainer sx={{ maxHeight: 500 ,maxWidth: '100%', margin: 'auto', borderRadius: '10px',backgroundColor: 'gray'}}>
-        <Table stickyHeader aria-label="sticky table">
-          
-            <TableRow  sx={{ backgroundColor: 'black',position: 'sticky', top: 0, zIndex: 1  }}>
-              {columns.map((column) => (
-                <TableCell
-                  key={column.id}
-                  align={column.align}
-                  style={{ top: 57, minWidth: column.minWidth,textAlign:'center', color:'white' }}
+    <Paper
+      sx={{
+        width: "80vw",
+        backgroundColor: "gray",
+        color: "white",
+        overflow: "hidden",
+        borderRadius: "10px",
+        marginLeft: "20px",
+        "@media (max-width: 400px)": {
+          width: "95vw",
+          marginLeft: "2.5vw",
+        },
+      }}
+    >
+      {loading ? (
+        <div style={{ padding: "2rem", textAlign: "center", color: "white" }}>
+          Loading...
+        </div>
+      ) : (
+        <>
+          <TableContainer
+            sx={{
+              maxHeight: 500,
+              maxWidth: "100%",
+              margin: "auto",
+              borderRadius: "10px",
+              backgroundColor: "gray",
+              overflowX: "auto",
+            }}
+          >
+            <Table>
+              <TableHead>
+                <TableRow
+                  sx={{
+                    position: "sticky",
+                    top: 0,
+                    zIndex: 1,
+                  }}
                 >
-                  {column.label}
-                </TableCell>
-              ))}
-            </TableRow>
-          
-          <TableBody>
-            {rows
-              .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-              .map((row) => {
-                return (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.code}>
-                    {columns.map((column) => {
-                      const value = row[column.id];
-                      return (
-                        <TableCell key={column.id} align={column.align} style={{ color: 'black',textAlign:'center' }}>
-                          {column.format && typeof value === 'number'
-                            ? column.format(value)
-                            : value}
-                        </TableCell>
-                      );
-                    })}
-                  </TableRow>
-                );
-              })}
-          </TableBody>
-        </Table>
-      </TableContainer>
-      <TablePagination
-        rowsPerPageOptions={[10, 25, 100]}
-        component="div"
-        count={rows.length}
-        rowsPerPage={rowsPerPage}
-        page={page}
-        onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
-        style={{ color: 'white', backgroundColor: 'gray' }}
-      />
+                  {columns.map((column) => (
+                    <TableCell
+                      key={column.id}
+                      style={{
+                        top: 57,
+                        textAlign: "center",
+                        wordWrap: "break-word",
+                        wordBreak: "break-word",
+                      }}
+                      sx={{
+                        fontSize: "1rem",
+                        backgroundColor: "black",
+                        color: "white",
+                        "@media (max-width: 600px)": {
+                          fontSize: "0.7rem",
+                          padding: "4px",
+                        },
+                      }}
+                    >
+                      {column.label}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+
+              <TableBody>
+                {rows
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, rowIndex) => (
+                    <TableRow
+                      hover
+                      role="checkbox"
+                      tabIndex={-1}
+                      key={rowIndex}
+                    >
+                      {columns.map((column) => {
+                        const value = row[column.id];
+                        return (
+                          <TableCell
+                            key={column.id}
+                            style={{
+                              color: "black",
+                              textAlign: "center",
+                              wordWrap: "break-word",
+                              wordBreak: "break-word",
+                              maxWidth: "200px",
+                            }}
+                            sx={{
+                              fontSize: "0.95rem",
+                              "@media (max-width: 600px)": {
+                                fontSize: "0.7rem",
+                                padding: "4px",
+                                maxWidth: "120px",
+                              },
+                            }}
+                          >
+                            {value}
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <TablePagination
+            rowsPerPageOptions={[10, 25, 100]}
+            component="div"
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            page={page}
+            onPageChange={handleChangePage}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+            sx={{
+              color: "white",
+              backgroundColor: "gray",
+              fontSize: "0.9rem",
+              "& .MuiTablePagination-toolbar": {
+                display: "flex",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                "@media (max-width: 500px)": {
+                  flexDirection: "column",
+                  alignItems: "flex-start",
+                },
+              },
+              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
+                {
+                  fontSize: "0.8rem",
+                  "@media (max-width: 500px)": {
+                    fontSize: "0.7rem",
+                  },
+                },
+              "& .MuiTablePagination-actions": {
+                display: "flex",
+                alignItems: "center",
+                "@media (max-width: 500px)": {
+                  alignSelf: "flex-end",
+                },
+              },
+            }}
+          />
+        </>
+      )}
     </Paper>
   );
 }
