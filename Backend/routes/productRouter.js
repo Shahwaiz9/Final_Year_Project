@@ -358,7 +358,9 @@ router.put("/:id/ratings", Authenticated, async (req, res) => {
 
 router.get("/:id/ratings", Authenticated, async (req, res) => {
   try {
-    const Rating = await rating.find({ product: req.params.id });
+    const Rating = await rating
+      .find({ product: req.params.id })
+      .populate("user", "name");
     let totalRating = 0;
 
     if (!Rating || Rating.length === 0) {
@@ -386,10 +388,12 @@ router.get("/:id/ratings", Authenticated, async (req, res) => {
 
 router.get("/:id/ratings/user", Authenticated, async (req, res) => {
   try {
-    const userRating = await rating.findOne({
-      user: req.user._id,
-      product: req.params.id,
-    });
+    const userRating = await rating
+      .findOne({
+        user: req.user._id,
+        product: req.params.id,
+      })
+      .populate("user", "name");
 
     if (!userRating) {
       return res.status(404).json({ message: "User rating not found" });

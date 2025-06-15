@@ -262,16 +262,38 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
 
   // Fetch initial data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchVendorInfo = async () => {
+      try {
+        const authToken = localStorage.getItem("authToken");
+        const response = await fetch(
+          "http://localhost:5000/vendor/profile-info",
+          {
+            headers: { Authorization: authToken },
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch vendor info");
+        }
+
+        const vendorData = await response.json();
+        setVendorInfo(vendorData.vendorInfo[0]);
+      } catch (err) {
+        setError(err.message);
+      }
+    };
+
+    fetchVendorInfo();
+  }, []);
+
+  useEffect(() => {
+    const fetchProductsAndStats = async () => {
       try {
         setLoading(true);
         const authToken = localStorage.getItem("authToken");
 
-        const [productsRes, vendorRes, statsRes] = await Promise.all([
+        const [productsRes, statsRes] = await Promise.all([
           fetch("http://localhost:5000/vendor/my-products", {
-            headers: { Authorization: authToken },
-          }),
-          fetch("http://localhost:5000/vendor/profile-info", {
             headers: { Authorization: authToken },
           }),
           fetch("http://localhost:5000/vendor-stats", {
@@ -279,18 +301,16 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
           }),
         ]);
 
-        if (!productsRes.ok || !vendorRes.ok || !statsRes.ok) {
+        if (!productsRes.ok || !statsRes.ok) {
           throw new Error("Failed to fetch data");
         }
 
-        const [productsData, vendorData, statsData] = await Promise.all([
+        const [productsData, statsData] = await Promise.all([
           productsRes.json(),
-          vendorRes.json(),
           statsRes.json(),
         ]);
 
         setProducts(productsData.products);
-        setVendorInfo(vendorData.vendorInfo[0]);
         setVendorStats(statsData.stats);
       } catch (err) {
         setError(err.message);
@@ -299,7 +319,7 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
       }
     };
 
-    fetchData();
+    fetchProductsAndStats();
   }, []);
 
   // Fetch orders when stat is selected
@@ -549,21 +569,21 @@ const VendorHomePage = ({ setIsAuthenticated }) => {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-red-600">
-        Error: {error}
-        <p className="m-2">You need to SignIn again</p>
-        <button
-          onClick={logout}
-          className="py-2 px-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-500 
-                     text-white font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl"
-        >
-          Logout
-        </button>
-      </div>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-red-600">
+  //       Error: {error}
+  //       <p className="m-2">You need to SignIn again</p>
+  //       <button
+  //         onClick={logout}
+  //         className="py-2 px-4 rounded-xl bg-gradient-to-r from-red-600 to-orange-500
+  //                    text-white font-medium tracking-wide transition-all duration-300 shadow-lg hover:shadow-xl"
+  //       >
+  //         Logout
+  //       </button>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div
