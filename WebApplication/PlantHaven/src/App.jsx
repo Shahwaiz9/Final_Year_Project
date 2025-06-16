@@ -53,7 +53,7 @@ const App = () => {
     window.addEventListener("storage", handleStorageChange);
 
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+  }, [user,parsedUser, isAuthenticated]);
 
   
 
@@ -74,7 +74,7 @@ const App = () => {
               <Route path="vendor" element={<AdminVendor />} />
               <Route path="orders" element={<AdminOrder />} />
             </Route>
-
+            
             <Route path="/" element={<MainLayout />}>
               <Route index element={<Homepage />} />
               <Route path="model" element={<Modelpage />} />
