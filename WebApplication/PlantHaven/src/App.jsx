@@ -34,10 +34,20 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => !!localStorage.getItem("authToken")
   );
+  const [user, setUser] = useState(
+    () => localStorage.getItem("user") || "{}"
+  );
+
+  const [parsedUser, setParsedUser]  =  useState(user ? JSON.parse(user) : {});
+
 
   useEffect(() => {
     const handleStorageChange = () => {
       setIsAuthenticated(!!localStorage.getItem("authToken"));
+      setUser(localStorage.getItem("user") || "{}");
+      setParsedUser(
+        user ? JSON.parse(user) : {}
+      );
     };
 
     window.addEventListener("storage", handleStorageChange);
@@ -45,8 +55,7 @@ const App = () => {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-  const user = localStorage.getItem("user");
-  const parsedUser = user ? JSON.parse(user) : {};
+  
 
   return (
     <div>
