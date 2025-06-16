@@ -35,26 +35,23 @@ const App = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
     () => !!localStorage.getItem("authToken")
   );
-  const [user, setUser] = useState(
-    () => localStorage.getItem("user") || "{}"
-  );
 
-  const [parsedUser, setParsedUser]  =  useState(user ? JSON.parse(user) : {});
-
+  const [user, setUser] = useState(() => localStorage.getItem("user") || "{}");
+  const [parsedUser, setParsedUser] = useState(() => JSON.parse(user));
 
   useEffect(() => {
     const handleStorageChange = () => {
       setIsAuthenticated(!!localStorage.getItem("authToken"));
-      setUser(localStorage.getItem("user") || "{}");
-      setParsedUser(
-        user ? JSON.parse(user) : {}
-      );
-    };
+      const newUser = localStorage.getItem("user") || "{}";
+      setUser(newUser);
+      setParsedUser(JSON.parse(newUser));
+  };
 
     window.addEventListener("storage", handleStorageChange);
 
     return () => window.removeEventListener("storage", handleStorageChange);
-  }, [user,parsedUser, isAuthenticated]);
+  }, []);
+
 
   
 
@@ -103,7 +100,7 @@ const App = () => {
               <Route path="createlisting" element={<CreateListing />} />
               <Route path="/edit-product/:id" element={<CreateListing />} />
             </>
-          ) : (
+          ) :(
             <>
               <Route path="/" element={<MainLayout />}>
                 <Route index element={<Homepage />} />
