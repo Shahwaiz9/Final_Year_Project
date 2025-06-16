@@ -28,6 +28,7 @@ import FeaturedProducts from "./components/Admin/FeaturedProducts.jsx";
 import AdminCustomers from "./components/Admin/Admin_Customers.jsx";
 import AdminVendor from "./components/Admin/Admin_Vendor.jsx";
 import AdminOrder from "./components/Admin/Admin_Orders.jsx";
+import PlantHavenLanding from "./components/LandingPage/LandingPage.jsx";
 const stripePromise = loadStripe("pk_test_TYooMQauvdEDq54NiTphI7jx");
 
 const App = () => {
@@ -62,6 +63,8 @@ const App = () => {
       <Routes>
         {!isAuthenticated && (
           <>
+            <Route path="/landing-page" element={<PlantHavenLanding />} />
+            
             <Route path="login" element={<Login />} />
             <Route path="signup/user" element={<SignupPage />} />
             <Route path="signup/vendor" element={<VendorSignup />} />
