@@ -45,85 +45,84 @@ const App = () => {
       const newUser = localStorage.getItem("user") || "{}";
       setUser(newUser);
       setParsedUser(JSON.parse(newUser));
-  };
+    };
 
     window.addEventListener("storage", handleStorageChange);
 
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
-
-  
-
   return (
-    <div>
-      <Routes>
-        {!isAuthenticated && (
-          <>
-            <Route path="/landing-page" element={<PlantHavenLanding />} />
-            
-            <Route path="login" element={<Login />} />
-            <Route path="signup/user" element={<SignupPage />} />
-            <Route path="signup/vendor" element={<VendorSignup />} />
+    <Routes>
+      {/* === Landing page with redirect for signed-in users */}
+      <Route
+        path="/"
+        element={
+          isAuthenticated ? <Navigate to="/home" /> : <PlantHavenLanding />
+        }
+      />
 
-            <Route path="/admin" element={<AdminPanel />}>
-              <Route index element={<Home />} />
-              <Route path="feature-page" element={<FeatureRequestPage />} />
-              <Route path="featured-products" element={<FeaturedProducts />} />
-              <Route path="customer" element={<AdminCustomers />} />
-              <Route path="vendor" element={<AdminVendor />} />
-              <Route path="orders" element={<AdminOrder />} />
-            </Route>
-            
-            <Route path="/" element={<MainLayout />}>
-              <Route index element={<Homepage />} />
-              <Route path="model" element={<Modelpage />} />
-            </Route>
-          </>
-        )}
+      {!isAuthenticated && (
+        <>
+          <Route element={<MainLayout />}>
+            <Route path="home" element={<Homepage />} />
+            <Route path="model" element={<Modelpage />} />
+          </Route>
 
-        {/* Protected Routes */}
-        <Route element={<PrivateRouteHandler />}>
-          <Route path="login" element={<Navigate to="/" />} />
-          <Route path="signup/user" element={<Navigate to="/" />} />
+          <Route path="login" element={<Login />} />
+          <Route path="signup/user" element={<SignupPage />} />
           <Route path="signup/vendor" element={<VendorSignup />} />
 
-          {parsedUser["role"] == "vendor" ? (
-            <>
-              <Route path="/" element={<Navigate to="/vendor-homepage" />} />
-              <Route
-                path="/vendor-homepage"
-                element={
-                  <VendorHomePage setIsAuthenticated={setIsAuthenticated} />
-                }
-              />
-              <Route path="createlisting" element={<CreateListing />} />
-              <Route path="/edit-product/:id" element={<CreateListing />} />
-            </>
-          ) :(
-            <>
-              <Route path="/" element={<MainLayout />}>
-                <Route index element={<Homepage />} />
-                <Route path="/edit-profile" element={<EditProfilePage />} />
-                <Route path="model" element={<Modelpage />} />
-                <Route path="marketplace" element={<MarketPlace />} />
-                <Route path="Product/:id" element={<Product />} />
-                <Route path="myorders" element={<UserOrders />} />
-                <Route
-                  path="/confirm-order/:id"
-                  element={
-                    <Elements stripe={stripePromise}>
-                      <ConfirmOrder />
-                    </Elements>
-                  }
-                />
-                <Route path="vendor-homepage" element={<Navigate to="/" />} />
-              </Route>
-            </>
-          )}
-        </Route>
-      </Routes>
-    </div>
+          <Route path="/admin" element={<AdminPanel />}>
+            <Route index element={<Home />} />
+            <Route path="feature-page" element={<FeatureRequestPage />} />
+            <Route path="featured-products" element={<FeaturedProducts />} />
+            <Route path="customer" element={<AdminCustomers />} />
+            <Route path="vendor" element={<AdminVendor />} />
+            <Route path="orders" element={<AdminOrder />} />
+          </Route>
+        </>
+      )}
+
+      {/* === Protected Routes */}
+      <Route element={<PrivateRouteHandler />}>
+        <Route path="login" element={<Navigate to="/home" />} />
+        <Route path="signup/user" element={<Navigate to="/home" />} />
+        <Route path="signup/vendor" element={<VendorSignup />} />
+
+        {parsedUser["role"] === "vendor" ? (
+          <>
+            <Route path="/home" element={<Navigate to="/vendor-homepage" />} />
+            <Route
+              path="/vendor-homepage"
+              element={
+                <VendorHomePage setIsAuthenticated={setIsAuthenticated} />
+              }
+            />
+            <Route path="createlisting" element={<CreateListing />} />
+            <Route path="/edit-product/:id" element={<CreateListing />} />
+          </>
+        ) : (
+          <Route element={<MainLayout />}>
+            <Route path="home" element={<Homepage />} />
+            <Route path="model" element={<Modelpage />} />
+            <Route path="marketplace" element={<MarketPlace />} />
+            <Route path="Product/:id" element={<Product />} />
+            <Route path="myorders" element={<UserOrders />} />
+            <Route path="edit-profile" element={<EditProfilePage />} />
+            <Route path="vendor-homepage" element={<Navigate to="/home" />} />
+            <Route
+              path="confirm-order/:id"
+              element={
+                <Elements stripe={stripePromise}>
+                  <ConfirmOrder />
+                </Elements>
+              }
+            />
+          </Route>
+        )}
+      </Route>
+    </Routes>
   );
 };
 

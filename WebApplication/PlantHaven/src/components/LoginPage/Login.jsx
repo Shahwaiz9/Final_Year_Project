@@ -39,13 +39,18 @@ export default function Login() {
 
       localStorage.setItem(
         "user",
-        JSON.stringify({ name: data.name, email, role: data.role,profilePic:data.profilePic })
+        JSON.stringify({
+          name: data.name,
+          email,
+          role: data.role,
+          profilePic: data.profilePic,
+        })
       );
       localStorage.setItem("authToken", data.jwtToken);
 
       window.dispatchEvent(new Event("storage"));
       setTimeout(() => {
-        navigate(role === "user" ? "/" : "/vendor-homepage");
+        navigate(role === "user" ? "/home" : "/vendor-homepage");
       }, 1000);
     } catch (error) {
       console.error(error);

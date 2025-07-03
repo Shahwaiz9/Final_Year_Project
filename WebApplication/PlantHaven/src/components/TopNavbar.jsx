@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import logo from "../assets/PlantHavenLogo.png";
 
 const navItems = [
-  { id: 1, text: "Home", path: "/" },
+  { id: 1, text: "Home", path: "/home" },
   { id: 2, text: "Detect Disease", path: "/model" },
   { id: 3, text: "MarketPlace", path: "/marketplace" },
   { id: 4, text: "My Orders", path: "/myorders" },
@@ -48,7 +48,7 @@ const TopNavbar = () => {
     <>
       <nav className="fixed top-0 left-0 w-full z-50 h-24 backdrop-blur-lg bg-white/10 shadow-gray-800 shadow-md border-b-2 border-gray-400">
         <div className="relative flex justify-between items-center h-full mx-auto px-6 lg:px-10 xl:px-20">
-          <Link to="/" className="group">
+          <Link to="/home" className="group">
             <img
               src={logo}
               alt="Plant Haven Logo"

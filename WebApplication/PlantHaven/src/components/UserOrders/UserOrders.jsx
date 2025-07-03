@@ -1,9 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  flexRender,
+} from "@tanstack/react-table";
 
 const UserOrders = () => {
   const authToken = localStorage.getItem("authToken");
   const [orders, setOrders] = useState([]);
-  const [filteredOrders, setFilteredOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
@@ -21,12 +27,10 @@ const UserOrders = () => {
         if (!response.ok) throw new Error("Failed to fetch orders");
 
         const data = await response.json();
-        // Sort orders by date (newest first)
         const sortedOrders = data.orders.sort(
           (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
         );
         setOrders(sortedOrders);
-        setFilteredOrders(sortedOrders);
       } catch (err) {
         setError(err.message || "Error loading orders");
       } finally {
@@ -38,21 +42,97 @@ const UserOrders = () => {
   }, [authToken]);
 
   // Filter orders based on active filter
-  useEffect(() => {
-    if (activeFilter === "all") {
-      setFilteredOrders(orders);
-    } else {
-      setFilteredOrders(
-        orders.filter((order) => order.status === activeFilter)
-      );
-    }
+  const filteredOrders = useMemo(() => {
+    if (activeFilter === "all") return orders;
+    return orders.filter((order) => order.status === activeFilter);
   }, [activeFilter, orders]);
 
-  // Format date using native JavaScript
-  const formatDate = (dateString) => {
-    const options = { year: "numeric", month: "short", day: "numeric" };
-    return new Date(dateString).toLocaleDateString("en-US", options);
-  };
+  // Define columns for the table
+  const columns = [
+    {
+      accessorKey: "product.image",
+      header: "Product",
+      cell: ({ row }) => (
+        <div className="flex items-center gap-3">
+          <img
+            src={row.original.product?.image}
+            alt={row.original.product?.productname}
+            className="w-12 h-12 object-contain border border-slate-200 rounded-lg"
+          />
+          <div>
+            <div className="font-medium text-slate-900">
+              {row.original.product?.productname}
+            </div>
+            <div className="text-sm text-slate-500">
+              {row.original.vendor?.CompanyName}
+            </div>
+          </div>
+        </div>
+      ),
+      enableSorting: false,
+    },
+    {
+      accessorKey: "createdAt",
+      header: "Order Date",
+      cell: ({ getValue }) => {
+        const date = new Date(getValue());
+        return date.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        });
+      },
+    },
+    {
+      accessorKey: "quantity",
+      header: "Quantity",
+    },
+    {
+      accessorKey: "totalAmount",
+      header: "Total",
+      cell: ({ getValue }) => `Rs. ${getValue()}`,
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ getValue }) => (
+        <span
+          className={`px-3 py-1 rounded-full text-sm font-medium ${
+            getValue() === "Delivered"
+              ? "bg-green-100 text-green-800"
+              : getValue() === "Cancelled"
+              ? "bg-red-100 text-red-800"
+              : "bg-yellow-100 text-yellow-800"
+          }`}
+        >
+          {getValue()}
+        </span>
+      ),
+    },
+    {
+      accessorKey: "paymentMethod",
+      header: "Payment",
+      cell: ({ getValue }) => <span className="capitalize">{getValue()}</span>,
+    },
+    {
+      accessorKey: "city",
+      header: "Delivery City",
+    },
+  ];
+
+  // Create table instance
+  const table = useReactTable({
+    data: filteredOrders,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: 5,
+      },
+    },
+  });
 
   if (loading) {
     return (
@@ -118,93 +198,230 @@ const UserOrders = () => {
           </button>
         </div>
 
-        <div className="space-y-6">
-          {filteredOrders.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-lg p-8 text-center">
-              <p className="text-slate-600 text-lg">
-                {activeFilter === "all"
-                  ? "No orders found"
-                  : `No ${activeFilter.toLowerCase()} orders found`}
-              </p>
-            </div>
-          ) : (
-            filteredOrders.map((order) => (
-              <div
-                key={order._id}
-                className="bg-white rounded-xl shadow-lg p-6"
-              >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {/* Product Info */}
-                  <div className="flex items-start gap-4">
-                    <img
-                      src={order.product?.image}
-                      alt={order.product?.productname}
-                      className="w-20 h-20 object-contain border border-slate-200 rounded-lg"
-                    />
-                    <div>
-                      <h2 className="text-lg font-semibold text-slate-900">
-                        {order.product?.productname}
-                      </h2>
-                      <p className="text-sm text-slate-500 mt-1">
-                        Sold by: {order.vendor?.CompanyName}
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Order Details */}
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-600">Order Date:</span>
-                      <span className="font-medium text-slate-900">
-                        {formatDate(order.createdAt)}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-600">Quantity:</span>
-                      <span className="font-medium text-slate-900">
-                        {order.quantity}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-slate-600">Status:</span>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${
-                          order.status === "Delivered"
-                            ? "bg-green-100 text-green-800"
-                            : order.status === "Cancelled"
-                            ? "bg-red-100 text-red-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
+        {/* Table */}
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-slate-50">
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <tr key={headerGroup.id}>
+                    {headerGroup.headers.map((header) => (
+                      <th
+                        key={header.id}
+                        className="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-100"
+                        onClick={header.column.getToggleSortingHandler()}
                       >
-                        {order.status}
-                      </span>
-                    </div>
-                  </div>
+                        <div className="flex items-center">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                          {{
+                            asc: (
+                              <svg
+                                className="ml-1 h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M5 15l7-7 7 7"
+                                />
+                              </svg>
+                            ),
+                            desc: (
+                              <svg
+                                className="ml-1 h-4 w-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M19 9l-7 7-7-7"
+                                />
+                              </svg>
+                            ),
+                          }[header.column.getIsSorted()] ?? null}
+                        </div>
+                      </th>
+                    ))}
+                  </tr>
+                ))}
+              </thead>
+              <tbody className="divide-y divide-slate-200">
+                {table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr key={row.id} className="hover:bg-slate-50">
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="px-6 py-4 whitespace-nowrap"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={columns.length}
+                      className="px-6 py-4 text-center"
+                    >
+                      {activeFilter === "all"
+                        ? "No orders found"
+                        : `No ${activeFilter.toLowerCase()} orders found`}
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
 
-                  {/* Payment Info */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-600">Total Amount:</span>
-                      <span className="text-lg font-bold text-green-700">
-                        Rs. {order.totalAmount}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-600">Payment Method:</span>
-                      <span className="font-medium text-slate-900 capitalize">
-                        {order.paymentMethod}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-slate-600">Delivery To:</span>
-                      <span className="font-medium text-slate-900">
-                        {order.city}
-                      </span>
-                    </div>
-                  </div>
+          {/* Pagination */}
+          {filteredOrders.length > 0 && (
+            <div className="px-6 py-3 flex items-center justify-between border-t border-slate-200">
+              <div className="flex-1 flex justify-between sm:hidden">
+                <button
+                  onClick={() => table.previousPage()}
+                  disabled={!table.getCanPreviousPage()}
+                  className="relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => table.nextPage()}
+                  disabled={!table.getCanNextPage()}
+                  className="ml-3 relative inline-flex items-center px-4 py-2 border border-slate-300 text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 disabled:opacity-50"
+                >
+                  Next
+                </button>
+              </div>
+              <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-slate-700">
+                    Showing{" "}
+                    <span className="font-medium">
+                      {table.getState().pagination.pageIndex *
+                        table.getState().pagination.pageSize +
+                        1}
+                    </span>{" "}
+                    to{" "}
+                    <span className="font-medium">
+                      {Math.min(
+                        (table.getState().pagination.pageIndex + 1) *
+                          table.getState().pagination.pageSize,
+                        filteredOrders.length
+                      )}
+                    </span>{" "}
+                    of{" "}
+                    <span className="font-medium">{filteredOrders.length}</span>{" "}
+                    results
+                  </p>
+                </div>
+                <div>
+                  <nav className="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
+                    <button
+                      onClick={() => table.setPageIndex(0)}
+                      disabled={!table.getCanPreviousPage()}
+                      className="relative inline-flex items-center px-2 py-2 rounded-l-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      <span className="sr-only">First</span>
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                        <path
+                          fillRule="evenodd"
+                          d="M8.707 5.293a1 1 0 010 1.414L5.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
+                      className="relative inline-flex items-center px-2 py-2 border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      <span className="sr-only">Previous</span>
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
+                      className="relative inline-flex items-center px-2 py-2 border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      <span className="sr-only">Next</span>
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() =>
+                        table.setPageIndex(table.getPageCount() - 1)
+                      }
+                      disabled={!table.getCanNextPage()}
+                      className="relative inline-flex items-center px-2 py-2 rounded-r-md border border-slate-300 bg-white text-sm font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                    >
+                      <span className="sr-only">Last</span>
+                      <svg
+                        className="h-5 w-5"
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clipRule="evenodd"
+                        />
+                        <path
+                          fillRule="evenodd"
+                          d="M11.293 14.707a1 1 0 010-1.414L14.586 10l-3.293-3.293a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    </button>
+                  </nav>
                 </div>
               </div>
-            ))
+            </div>
           )}
         </div>
       </div>

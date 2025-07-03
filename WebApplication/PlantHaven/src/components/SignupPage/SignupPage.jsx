@@ -3,70 +3,72 @@ import { Link, useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaUser, FaStore } from "react-icons/fa";
 
 export default function SignupPage() {
-  const [userData,setuserData]=useState({
+  const [userData, setuserData] = useState({
     name: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  
-  const [errorMsg,setErrorMsg]= useState("")
-  const navigate=useNavigate();
 
-  const handlechange=(e)=>{
-    const {name,value}=e.target;
-    console.log(name,value)
-    const SignUpInfo={...userData}
-    SignUpInfo[name]=value
-    setuserData(SignUpInfo)
-    setErrorMsg("")
-  }
+  const [errorMsg, setErrorMsg] = useState("");
+  const navigate = useNavigate();
 
-  const handlesubmit=async (e)=>{
+  const handlechange = (e) => {
+    const { name, value } = e.target;
+    console.log(name, value);
+    const SignUpInfo = { ...userData };
+    SignUpInfo[name] = value;
+    setuserData(SignUpInfo);
+    setErrorMsg("");
+  };
+
+  const handlesubmit = async (e) => {
     e.preventDefault();
-    const {name,email,password,confirmPassword}=userData
-   
-    if(password!=confirmPassword) {
-      setErrorMsg("Password and Confirm Password fields do not match")
+    const { name, email, password, confirmPassword } = userData;
+
+    if (password != confirmPassword) {
+      setErrorMsg("Password and Confirm Password fields do not match");
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:5000/auth/signup/user',{
-        method: 'POST',
+      const response = await fetch("http://localhost:5000/auth/signup/user", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({name,email,password})
-      })
-      const data = await response.json()
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await response.json();
       if (!response.ok) {
         setErrorMsg(data.message || "Signup failed. Please check your input.");
         return;
       }
-      localStorage.setItem("user", JSON.stringify({ name, email, role: "user" }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({ name, email, role: "user" })
+      );
       localStorage.setItem("authToken", data.jwtToken);
-      
-      setTimeout(() => {
-        navigate("/");
-      }, 1000);
-      
-      console.log(data)
-    }
-    catch(e){
-      console.log(e)
-    }
 
-  }
+      setTimeout(() => {
+        navigate("/home");
+      }, 1000);
+
+      console.log(data);
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   return (
     <div
       className="h-screen flex justify-center items-center bg-cover bg-center bg-no-repeat p-4"
       style={{ backgroundImage: "url('/src/assets/loginbg.jpg')" }}
     >
-      <div className="border border-gray-300 rounded-2xl p-10 shadow-2xl backdrop-blur-lg bg-white/10 
-                      hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md">
-        
+      <div
+        className="border border-gray-300 rounded-2xl p-10 shadow-2xl backdrop-blur-lg bg-white/10 
+                      hover:backdrop-blur-xl transition-all duration-300 w-full max-w-md"
+      >
         <h1 className="text-4xl text-white font-bold text-center mb-6 drop-shadow-md">
           Signup
         </h1>
@@ -85,7 +87,7 @@ export default function SignupPage() {
               placeholder="Your Name"
             />
           </div>
-          
+
           <div className="relative w-full">
             <FaEnvelope className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -114,7 +116,6 @@ export default function SignupPage() {
             />
           </div>
 
-          
           <div className="relative w-full">
             <FaLock className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
@@ -128,7 +129,9 @@ export default function SignupPage() {
               placeholder="Confirm Password"
             />
           </div>
-          {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+          {errorMsg && (
+            <p className="text-red-500 text-sm text-center">{errorMsg}</p>
+          )}
           <button
             type="submit"
             className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 rounded-xl text-lg font-semibold 
@@ -142,7 +145,7 @@ export default function SignupPage() {
             className="w-full text-center bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl text-lg font-semibold 
                        transition-all duration-300 ease-in-out shadow-md hover:shadow-lg hover:shadow-green-500/30 button"
           >
-            <FaStore className="inline-block mr-2"/> Signup as Vendor
+            <FaStore className="inline-block mr-2" /> Signup as Vendor
           </Link>
 
           <p className="text-center text-slate-300">

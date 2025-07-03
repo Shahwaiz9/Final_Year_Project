@@ -88,33 +88,21 @@ const MarketPlace = () => {
   const uniqueVendors = [...new Set(products.map((p) => p.vendor.CompanyName))];
 
   // Filter logic
-  const filteredProducts = products
-    .filter((product) => {
-      const matchesType =
-        selectedType === "all" || product.type === selectedType;
-      const matchesVendor =
-        selectedVendor === "all" ||
-        product.vendor.CompanyName === selectedVendor;
-      const matchesPrice =
-        product.price >= priceRange[0] && product.price <= priceRange[1];
+  const filteredProducts = products.filter((product) => {
+    const matchesType = selectedType === "all" || product.type === selectedType;
+    const matchesVendor =
+      selectedVendor === "all" || product.vendor.CompanyName === selectedVendor;
+    const matchesPrice =
+      product.price >= priceRange[0] && product.price <= priceRange[1];
 
-      return matchesType && matchesVendor && matchesPrice;
-    })
-    .reduce(
-      (acc, product) => {
-        // Separate featured and non-featured products
-        if (product.isFeatured) {
-          acc.featured.push(product);
-        } else {
-          acc.regular.push(product);
-        }
-        return acc;
-      },
-      { featured: [], regular: [] }
-    );
+    return matchesType && matchesVendor && matchesPrice;
+  });
 
-  const limitedFeatured = filteredProducts.featured.slice(0, 4);
-  const finalProducts = [...limitedFeatured, ...filteredProducts.regular];
+  // Sort so featured products appear first
+  const finalProducts = filteredProducts.sort((a, b) => {
+    if (a.isFeatured === b.isFeatured) return 0;
+    return a.isFeatured ? -1 : 1;
+  });
 
   // Search handler
   const handleSearch = (e) => {
