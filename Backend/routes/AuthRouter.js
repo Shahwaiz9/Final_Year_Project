@@ -9,6 +9,7 @@ import bcrypt from "bcrypt";
 import user from "../models/user.js";
 import vendor from "../models/vendor.js";
 import jwt from "jsonwebtoken";
+import Admin from "../models/admin.js";
 
 const router = express.Router();
 
@@ -151,6 +152,49 @@ router.post("/login/vendor", vendorLoginValidation, async (req, res) => {
       CompanyName: Vendor.CompanyName,
       role: Vendor.role,
       profilePic: Vendor.profilePic,
+    });
+  } catch (e) {
+    res.status(500).json({ message: "Internal server error", success: false });
+  }
+});
+
+router.post("/signup/admin", async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (admin) return res.status(400).json({ message: "Email already exists" });
+    const newAdmin = new Admin({ username, email, password });
+    newAdmin.password = await bcrypt.hash(password, 10);
+    await newAdmin.save();
+    res
+      .status(201)
+      .json({ message: "Admin created successfully", success: true });
+  } catch (e) {
+    res.status(500).json({ message: "Internal server error", success: false });
+  }
+});
+
+router.post("/login/admin", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const admin = await Admin.findOne({ email });
+    if (!admin) return res.status(403).json({ message: "Admin doesn't exist" });
+
+    const comparePass = await bcrypt.compare(password, admin.password);
+    if (!comparePass)
+      return res.status(403).json({ message: "Invalid password" });
+    const jwtToken = jwt.sign(
+      { email: admin.email, _id: admin._id, role: admin.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
+    );
+    res.status(200).json({
+      message: "Admin logged in successfully",
+      success: true,
+      jwtToken,
+      email,
+      username: admin.username,
+      role: admin.role,
     });
   } catch (e) {
     res.status(500).json({ message: "Internal server error", success: false });

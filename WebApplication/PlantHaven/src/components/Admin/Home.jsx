@@ -7,7 +7,10 @@ import {
   BsBagCheckFill,
   BsClockHistory 
 } from 'react-icons/bs';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
+  LineChart, Line 
+} from 'recharts';
 import axios from 'axios';
 
 function Home() {
@@ -20,24 +23,35 @@ function Home() {
     pendingOrders: 0,
   });
 
+  // ⬇️ Dummy data for the last 7 days
   const data = [
-    { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-    { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-    { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-    { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-    { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-    { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-    { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
+    { name: 'Sat', productsAdded: 6, orders: 10, sales: 1871 },
+    { name: 'Sun', productsAdded: 10, orders: 12, sales: 1202 },
+    { name: 'Mon', productsAdded: 6, orders: 12, sales: 1334 },
+    { name: 'Tue', productsAdded: 6, orders: 11, sales: 1655 },
+    { name: 'Wed', productsAdded: 14, orders: 17, sales: 4005 },
+    { name: 'Thu', productsAdded: 12, orders: 17, sales: 3027 },
+    { name: 'Fri', productsAdded: 5, orders: 11, sales: 4966 }
   ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem("authToken");
+
         const [productRes, vendorRes, userRes, statsRes] = await Promise.all([
-          axios.get('http://localhost:5000/admin/product-count'),
-          axios.get('http://localhost:5000/admin/vendor-count'),
-          axios.get('http://localhost:5000/admin/user-count'),
-          axios.get('http://localhost:5000/admin/stats-summary'),
+          axios.get("http://localhost:5000/admin/product-count", {
+            headers: { Authorization: `${token}` },
+          }),
+          axios.get("http://localhost:5000/admin/vendor-count", {
+            headers: { Authorization: `${token}` },
+          }),
+          axios.get("http://localhost:5000/admin/user-count", {
+            headers: { Authorization: `${token}` },
+          }),
+          axios.get("http://localhost:5000/admin/stats-summary", {
+            headers: { Authorization: `${token}` },
+          }),
         ]);
 
         setDashboardData({
@@ -49,7 +63,7 @@ function Home() {
           pendingOrders: statsRes.data.totalPendingOrders,
         });
       } catch (error) {
-        console.error('Error fetching dashboard data:', error);
+        console.error("Error fetching dashboard data:", error);
       }
     };
 
@@ -120,8 +134,8 @@ function Home() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Bar dataKey="pv" fill="#8884d8" />
-            <Bar dataKey="uv" fill="#82ca9d" />
+            <Bar dataKey="productsAdded" fill="#8884d8" name="Products Added" />
+            <Bar dataKey="orders" fill="#82ca9d" name="Orders" />
           </BarChart>
         </ResponsiveContainer>
 
@@ -132,8 +146,7 @@ function Home() {
             <YAxis />
             <Tooltip />
             <Legend />
-            <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-            <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="sales" stroke="#ff7300" activeDot={{ r: 8 }} name="Daily Sales" />
           </LineChart>
         </ResponsiveContainer>
       </div>

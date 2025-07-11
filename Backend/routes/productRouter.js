@@ -247,6 +247,40 @@ router.get("/search/:key", Authenticated, async (req, res) => {
   }
 });
 
+router.get("/search-all/:key", Authenticated, async (req, res) => {
+  try {
+    const query = {
+      $or: [
+        { productname: { $regex: req.params.key, $options: "i" } },
+        { description: { $regex: req.params.key, $options: "i" } },
+        { keywords: { $regex: req.params.key, $options: "i" } },
+      ],
+    };
+
+    const products = await product
+      .find(query)
+      .populate("vendor", "CompanyName");
+
+    if (!products || products.length === 0) {
+      return res.status(404).json({
+        success: true,
+        message: "No Relevant Products available",
+        products: [],
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Search Results",
+      products,
+    });
+  } catch (e) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
+  }
+});
+
 router.get("/request-feature/:id", Authenticated, async (req, res) => {
   try {
     const Product = await product.findById(req.params.id);

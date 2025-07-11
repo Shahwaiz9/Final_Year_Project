@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import * as React from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
@@ -20,14 +19,7 @@ const columns = [
   { id: "block", label: "Action" },
 ];
 
-function createData(
-  email,
-  CompanyName,
-  CompanyAddress,
-  contact,
-  accountStatus,
-  block
-) {
+function createData(email, CompanyName, CompanyAddress, contact, accountStatus, block) {
   return { email, CompanyName, CompanyAddress, contact, accountStatus, block };
 }
 
@@ -49,7 +41,12 @@ export default function ColumnGroupingTable({ type }) {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`http://localhost:5000/admin/${type}`);
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(`http://localhost:5000/admin/${type}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
       setData(response.data.vendors);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -58,18 +55,24 @@ export default function ColumnGroupingTable({ type }) {
     }
   };
 
-  React.useEffect(() => {
-    fetchData();
-  }, [type]);
-
   const handleBlock = async (id) => {
     try {
-      await axios.post(`http://localhost:5000/admin/vendor/${id}`);
+      const token = localStorage.getItem("authToken");
+      await axios.post(
+        `http://localhost:5000/admin/vendor/${id}`,
+        {},
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
       fetchData();
     } catch (error) {
-      console.error("Failed to block vendor:", error);
+      console.error("Failed to block/unblock vendor:", error);
     }
   };
+
   const blockButton = (id, status) => {
     const isBlocked = status === "Suspended";
 
@@ -94,6 +97,10 @@ export default function ColumnGroupingTable({ type }) {
       </Button>
     );
   };
+
+  React.useEffect(() => {
+    fetchData();
+  }, [type]);
 
   React.useEffect(() => {
     const newRows = data.map((vendor) =>
@@ -178,12 +185,7 @@ export default function ColumnGroupingTable({ type }) {
                 {rows
                   .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, rowIndex) => (
-                    <TableRow
-                      hover
-                      role="checkbox"
-                      tabIndex={-1}
-                      key={rowIndex}
-                    >
+                    <TableRow hover role="checkbox" tabIndex={-1} key={rowIndex}>
                       {columns.map((column) => {
                         const value = row[column.id];
                         return (
@@ -236,13 +238,12 @@ export default function ColumnGroupingTable({ type }) {
                   alignItems: "flex-start",
                 },
               },
-              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows":
-                {
-                  fontSize: "0.8rem",
-                  "@media (max-width: 500px)": {
-                    fontSize: "0.7rem",
-                  },
+              "& .MuiTablePagination-selectLabel, & .MuiTablePagination-displayedRows": {
+                fontSize: "0.8rem",
+                "@media (max-width: 500px)": {
+                  fontSize: "0.7rem",
                 },
+              },
               "& .MuiTablePagination-actions": {
                 display: "flex",
                 alignItems: "center",

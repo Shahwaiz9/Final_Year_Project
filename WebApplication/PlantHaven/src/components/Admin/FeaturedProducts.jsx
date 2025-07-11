@@ -7,24 +7,37 @@ const FeaturedProducts = () => {
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchFeaturedProducts = async () => {
-            try {
-                const response = await axios.get('http://localhost:5000/product/featured/featured-products');
-                if (response.data && Array.isArray(response.data.products)) {
-                    setProducts(response.data.products);
-                } else {
-                    setProducts([]);
-                    setError('Unexpected response format');
-                }
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to fetch featured products');
-                setLoading(false);
-            }
-        };
+  const fetchFeaturedProducts = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
 
-        fetchFeaturedProducts();
-    }, []);
+      const response = await axios.get(
+        'http://localhost:5000/product/featured/featured-products',
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
+      if (response.data && Array.isArray(response.data.products)) {
+        setProducts(response.data.products);
+      } else {
+        setProducts([]);
+        setError('Unexpected response format');
+      }
+
+    } catch (err) {
+      console.error(err);
+      setError('Failed to fetch featured products');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchFeaturedProducts();
+}, []);
+
 
     const handleEndFeature = (productId) => {
         // Logic to end feature (you can make an API call here)

@@ -25,22 +25,34 @@ const OrdersPage = () => {
   }, [])
 
   const fetchOrders = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch("http://localhost:5000/admin/orders")
-      const data = await response.json()
+  try {
+    setLoading(true);
 
-      if (data.success) {
-        setOrders(data.orders)
-      } else {
-        setError(data.message || "Failed to fetch orders")
-      }
-    } catch (err) {
-      setError("Network error occurred")
-    } finally {
-      setLoading(false)
+    const token = localStorage.getItem("authToken");
+
+    const response = await fetch("http://localhost:5000/admin/orders", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `${token}`,
+      },
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setOrders(data.orders);
+    } else {
+      setError(data.message || "Failed to fetch orders");
     }
+  } catch (err) {
+    console.error("Fetch error:", err);
+    setError("Network error occurred");
+  } finally {
+    setLoading(false);
   }
+};
+
 
   const getStatusColor = (status) => {
     switch (status) {

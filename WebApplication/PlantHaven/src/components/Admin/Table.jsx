@@ -36,19 +36,28 @@ export default function ColumnGroupingTable({ type }) {
   };
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await axios.get(`http://localhost:5000/admin/${type}`);
-        const result = response.data;
-        setData(result.users);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [type]);
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+
+      const response = await axios.get(`http://localhost:5000/admin/${type}`, {
+        headers: {
+          Authorization: `${token}`,
+        },
+      });
+
+      const result = response.data;
+      setData(result.users);  
+    } catch (error) {
+      console.error("Error fetching data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchData();
+}, [type]);
+
 
   React.useEffect(() => {
     const newRows = data.map((user) => createData(user.name, user.email));

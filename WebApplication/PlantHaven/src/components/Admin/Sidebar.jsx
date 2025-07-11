@@ -8,7 +8,9 @@ import {
   BsPeopleFill,
   BsListCheck,
   BsCartFill,
-  BsFillGearFill
+  BsFillGearFill,
+  BsReceiptCutoff,
+  BsCalendar3
 } from 'react-icons/bs';
 
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
@@ -19,6 +21,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
     { icon: BsPeopleFill, title: 'Customers', path: '/admin/customer' },
     { icon: BsListCheck, title: 'Vendors', path: '/admin/vendor' },
     { icon: BsCartFill, title: 'Orders', path: '/admin/orders' },
+    { icon: BsReceiptCutoff, title: 'Reports', path: '/admin/transactions' },
     { icon: BsFillGearFill, title: 'Settings', path: '/settings' }
   ];
 

@@ -4,10 +4,13 @@ import user from "../models/user.js";
 import vendor from "../models/vendor.js";
 import VendorStats from "../models/vendorstats.js";
 import orders from "../models/orders.js";
+import Authenticated from "../middlewares/jwtAuth.js";
+import bcrypt from "bcrypt";
+import admin from "../models/admin.js";
 
 const router = express.Router();
 
-router.get("/product-count", async (req, res) => {
+router.get("/product-count", Authenticated, async (req, res) => {
   try {
     const count = await product.countDocuments();
 
@@ -19,7 +22,7 @@ router.get("/product-count", async (req, res) => {
   }
 });
 
-router.get("/user-count", async (req, res) => {
+router.get("/user-count", Authenticated, async (req, res) => {
   try {
     const count = await user.countDocuments();
 
@@ -31,7 +34,7 @@ router.get("/user-count", async (req, res) => {
   }
 });
 
-router.get("/vendor-count", async (req, res) => {
+router.get("/vendor-count", Authenticated, async (req, res) => {
   try {
     const count = await vendor.countDocuments();
 
@@ -43,7 +46,7 @@ router.get("/vendor-count", async (req, res) => {
   }
 });
 
-router.get("/stats-summary", async (req, res) => {
+router.get("/stats-summary", Authenticated, async (req, res) => {
   try {
     const vendorsStats = await VendorStats.find();
 
@@ -72,7 +75,7 @@ router.get("/stats-summary", async (req, res) => {
   }
 });
 
-router.get("/pending-feature-requests", async (req, res) => {
+router.get("/pending-feature-requests", Authenticated, async (req, res) => {
   try {
     const products = await product
       .find({ FeaturedRequest: "Pending" })
@@ -88,7 +91,7 @@ router.get("/pending-feature-requests", async (req, res) => {
   }
 });
 
-router.post("/feature-request/:id", async (req, res) => {
+router.post("/feature-request/:id", Authenticated, async (req, res) => {
   try {
     const { action } = req.body;
 
@@ -127,7 +130,7 @@ router.post("/feature-request/:id", async (req, res) => {
   }
 });
 
-router.get("/vendor", async (req, res) => {
+router.get("/vendor", Authenticated, async (req, res) => {
   try {
     const vendors = await vendor.find({});
 
@@ -141,7 +144,7 @@ router.get("/vendor", async (req, res) => {
   }
 });
 
-router.get("/customers", async (req, res) => {
+router.get("/customers", Authenticated, async (req, res) => {
   try {
     const users = await user.find({});
 
@@ -155,7 +158,7 @@ router.get("/customers", async (req, res) => {
   }
 });
 
-router.get("/orders", async (req, res) => {
+router.get("/orders", Authenticated, async (req, res) => {
   try {
     const ordersData = await orders
       .find({})
@@ -178,7 +181,7 @@ router.get("/orders", async (req, res) => {
   }
 });
 
-router.post("/vendor/:id", async (req, res) => {
+router.post("/vendor/:id", Authenticated, async (req, res) => {
   try {
     const Vendor = await vendor.findById(req.params.id);
     if (!Vendor) {
@@ -198,6 +201,99 @@ router.post("/vendor/:id", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
+
+router.get("/transactions", Authenticated, async (req, res) => {
+  try {
+    const transactions = await orders
+      .find()
+      .populate("user", "name email")
+      .populate("vendor", "CompanyName email")
+      .populate("product", "productname price")
+      .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      transactions,
+    });
+  } catch (error) {
+    console.error("Error fetching transactions:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch transactions",
+    });
+  }
+});
+
+router.get("/monthly-report", Authenticated, async (req, res) => {
+  try {
+    const startOfMonth = new Date();
+    startOfMonth.setDate(1);
+    startOfMonth.setHours(0, 0, 0, 0);
+
+    const ordersData = await orders.find({ createdAt: { $gte: startOfMonth } });
+    const totalOrders = ordersData.length;
+    const totalSales = ordersData.reduce(
+      (sum, o) => sum + (o.totalAmount || 0),
+      0
+    );
+    const pendingOrders = ordersData.filter(
+      (o) => o.status === "Pending"
+    ).length;
+
+    const newUsers = await user.countDocuments({
+      createdAt: { $gte: startOfMonth },
+    });
+
+    res.status(200).json({
+      success: true,
+      totalOrders,
+      newUsers,
+      totalSales,
+      pendingOrders,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+});
+
+router.post("/change-password", Authenticated, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const adminId = req.user.id;
+    const adminUser = await admin.findById(adminId);
+
+    if (!adminUser) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Admin not found" });
+    }
+
+    const isMatch = await bcrypt.compare(currentPassword, adminUser.password);
+    if (!isMatch) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect current password" });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    adminUser.password = hashedPassword;
+    await adminUser.save();
+
+    return res
+      .status(200)
+      .json({ success: true, message: "Password updated successfully" });
+  } catch (error) {
+    console.error(error);
+    return res
+      .status(500)
+      .json({ success: false, message: "Internal server error" });
   }
 });
 

@@ -7,14 +7,24 @@ function FeatureRequestPage() {
   const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
     fetchPendingRequests();
   }, [refresh]);
 
   const fetchPendingRequests = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:5000/admin/pending-feature-requests");
+      const token = localStorage.getItem("authToken");
+
+      const res = await axios.get(
+        "http://localhost:5000/admin/pending-feature-requests",
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
       setProducts(res.data.products);
     } catch (error) {
       console.error(error);
@@ -25,7 +35,18 @@ function FeatureRequestPage() {
 
   const handleAction = async (id, action) => {
     try {
-      await axios.post(`http://localhost:5000/admin/feature-request/${id}`, { action });
+      const token = localStorage.getItem("authToken");
+
+      await axios.post(
+        `http://localhost:5000/admin/feature-request/${id}`,
+        { action },
+        {
+          headers: {
+            Authorization: `${token}`,
+          },
+        }
+      );
+
       alert(`Feature request ${action}d successfully`);
       setRefresh(!refresh);
     } catch (error) {
@@ -33,6 +54,7 @@ function FeatureRequestPage() {
       alert("Failed to update feature request");
     }
   };
+
 
   return (
     <div className="main-container">
