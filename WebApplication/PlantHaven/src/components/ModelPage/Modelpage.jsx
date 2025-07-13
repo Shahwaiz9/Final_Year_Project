@@ -2,6 +2,7 @@
 import { useState, useRef } from "react";
 import Webcam from "react-webcam";
 import AIPlantImage from "../../assets/AIPlant.png";
+import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import {
   Container,
@@ -16,10 +17,11 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import ProductCard from "../../components/ProductCard"; // 👈 important
+import ProductCard from "../../components/ProductCard";
 import "./modelstyles.css";
 
 const ImageChatbot = () => {
+  const navigate = useNavigate();
   const [image, setImage] = useState(null);
   const [base64Image, setBase64Image] = useState("");
   const [preview, setPreview] = useState(null);
@@ -30,6 +32,8 @@ const ImageChatbot = () => {
   const [loadingRemedies, setLoadingRemedies] = useState(false);
   const [flag, setFlag] = useState(true);
   const [showCamera, setShowCamera] = useState(false);
+  const [diseaseDetected, setDiseaseDetected] = useState(false); // 👈 new state
+
   const webcamRef = useRef(null);
 
   const handleImageUpload = (event) => {
@@ -41,6 +45,7 @@ const ImageChatbot = () => {
       setResponse("");
       setRemediesResponse("");
       setProducts([]);
+      setDiseaseDetected(false); // reset when new image uploaded
     }
   };
 
@@ -53,6 +58,7 @@ const ImageChatbot = () => {
     setResponse("");
     setRemediesResponse("");
     setProducts([]);
+    setDiseaseDetected(false); // reset when new capture
   };
 
   const handleSubmit = async () => {
@@ -84,6 +90,7 @@ const ImageChatbot = () => {
       if (data.prediction.length > 0) {
         const label = data.prediction[0];
         setResponse(`${label}`);
+        setDiseaseDetected(true); // set true after prediction
         await fetchProducts(label);
         await fetchRemedies(label);
       } else {
@@ -104,6 +111,7 @@ const ImageChatbot = () => {
     const userToken = localStorage.getItem("authToken");
     if (!userToken) {
       setFlag(false);
+      setRemediesResponse("");
       return;
     }
     setLoadingRemedies(true);
@@ -269,56 +277,65 @@ const ImageChatbot = () => {
               }}
               placeholder="AI response will appear here..."
             />
-            {products.length > 0 && (
-              <Box sx={{ mt: 3 }}>
-                <Typography
-                  variant="h6"
-                  sx={{ color: "black", fontWeight: "bold", mb: 2 }}
-                >
-                  Recommended Featured Products:
-                </Typography>
-             <div className="flex flex-wrap gap-6 justify-center">
-  {products.map((product) => (
-    <ProductCard key={product._id} product={product} />
-  ))}
-</div>
-
-
-
-              </Box>
-            )}
-            {flag ? (
-              <Fade in={!!remediesResponse} timeout={1000}>
-                <Box
-                  sx={{
-                    mt: 3,
-                    p: 2,
-                    backgroundColor: "rgba(0,0,0,0.05)",
-                    borderRadius: "8px",
-                    textAlign: "left",
-                  }}
-                >
-                  <Typography
-                    variant="h6"
-                    sx={{ color: "black", fontWeight: "bold", mb: 2 }}
-                  >
-                    Remedies & Treatments:
-                  </Typography>
-                  {loadingRemedies ? (
-                    <CircularProgress size={24} />
-                  ) : (
-                    <ReactMarkdown>{remediesResponse}</ReactMarkdown>
-                  )}
-                </Box>
-              </Fade>
-            ) : (
-              <Typography sx={{ mt: 2, color: "red", fontWeight: "bold" }}>
-                Log in to view remedies.
-              </Typography>
-            )}
           </CardContent>
         </Card>
       </Container>
+
+      {diseaseDetected && flag ? (
+        <div className="modelProducts">
+          <Box sx={{ mt: 3 }}>
+            <Typography
+              variant="h6"
+              sx={{ color: "black", fontWeight: "bold", mb: 2, fontSize: "1.7rem" }}
+            >
+              Recommended Featured Products:
+            </Typography>
+            <div className="flex flex-wrap gap-6 justify-center">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {products.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
+            </div>
+          </Box>
+
+          <Fade in={!!remediesResponse} timeout={1000}>
+            <Box
+              sx={{
+                mt: 3,
+                p: 2,
+                backgroundColor: "rgba(255, 255, 255, 0.28)",
+                borderRadius: "8px",
+                textAlign: "left",
+                width: "100%",
+              }}
+            >
+              <Typography
+                variant="h6"
+                sx={{ color: "black", fontWeight: "bold", mb: 2, fontSize: "1.7rem" }}
+              >
+                Remedies & Treatments:
+              </Typography>
+              {loadingRemedies ? (
+                <CircularProgress size={24} />
+              ) : (
+                <ReactMarkdown>{remediesResponse}</ReactMarkdown>
+              )}
+            </Box>
+          </Fade>
+        </div>
+      ) : diseaseDetected && !flag ? (
+         <Box sx={{ mt: 2,mb: 4, textAlign: "center" }}>
+        <Button
+          variant="contained"
+          color="error"
+          onClick={() => navigate("/login")}
+          sx={{ fontWeight: "bold" }}
+        >
+          Log In to view remedies
+        </Button>
+      </Box>
+      ) : null}
     </div>
   );
 };
