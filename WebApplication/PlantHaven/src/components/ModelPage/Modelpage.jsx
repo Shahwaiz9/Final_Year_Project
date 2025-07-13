@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
-import ProductCard from "../../components/ProductCard"; // 👈 important
+import ProductCard from "../../components/ProductCard";
 import "./modelstyles.css";
 
 const ImageChatbot = () => {
@@ -277,14 +277,11 @@ const ImageChatbot = () => {
                 >
                   Recommended Featured Products:
                 </Typography>
-             <div className="flex flex-wrap gap-6 justify-center">
-  {products.map((product) => (
-    <ProductCard key={product._id} product={product} />
-  ))}
-</div>
-
-
-
+                <div className="flex flex-wrap gap-6 justify-center">
+                  {products.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))}
+                </div>
               </Box>
             )}
             {flag ? (
