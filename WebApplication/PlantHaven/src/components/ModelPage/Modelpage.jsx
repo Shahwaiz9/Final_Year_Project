@@ -153,10 +153,7 @@ const ImageChatbot = () => {
   };
 
   return (
-    <div
-      className="background"
-      style={{ backgroundImage: `url(${AIPlantImage})` }}
-    >
+    <div className="min-h-screen bg-gradient-to-br from-slate-500 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="overlay"></div>
       <Container
         maxWidth="sm"
@@ -286,7 +283,12 @@ const ImageChatbot = () => {
           <Box sx={{ mt: 3 }}>
             <Typography
               variant="h6"
-              sx={{ color: "black", fontWeight: "bold", mb: 2, fontSize: "1.7rem" }}
+              sx={{
+                color: "black",
+                fontWeight: "bold",
+                mb: 2,
+                fontSize: "1.7rem",
+              }}
             >
               Recommended Featured Products:
             </Typography>
@@ -312,7 +314,12 @@ const ImageChatbot = () => {
             >
               <Typography
                 variant="h6"
-                sx={{ color: "black", fontWeight: "bold", mb: 2, fontSize: "1.7rem" }}
+                sx={{
+                  color: "black",
+                  fontWeight: "bold",
+                  mb: 2,
+                  fontSize: "1.7rem",
+                }}
               >
                 Remedies & Treatments:
               </Typography>
@@ -325,16 +332,16 @@ const ImageChatbot = () => {
           </Fade>
         </div>
       ) : diseaseDetected && !flag ? (
-         <Box sx={{ mt: 2,mb: 4, textAlign: "center" }}>
-        <Button
-          variant="contained"
-          color="error"
-          onClick={() => navigate("/login")}
-          sx={{ fontWeight: "bold" }}
-        >
-          Log In to view remedies
-        </Button>
-      </Box>
+        <Box sx={{ mt: 2, mb: 4, textAlign: "center" }}>
+          <Button
+            variant="contained"
+            color="error"
+            onClick={() => navigate("/login")}
+            sx={{ fontWeight: "bold" }}
+          >
+            Log In to view remedies
+          </Button>
+        </Box>
       ) : null}
     </div>
   );

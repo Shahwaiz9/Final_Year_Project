@@ -150,7 +150,7 @@ const UserOrders = () => {
     );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#759e9e] to-[#00c7c7] py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-400 to-gray-200 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-6xl mt-22 mx-auto">
         <h1 className="text-3xl font-bold text-slate-900 mb-4">Your Orders</h1>
 
