@@ -7,7 +7,9 @@ const MarketPlace = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
   const [selectedType, setSelectedType] = useState("all");
   const [selectedVendor, setSelectedVendor] = useState("all");
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState([]); // All products from API
+  const [filteredProducts, setFilteredProducts] = useState([]); // Products after filters
+  const [displayedProducts, setDisplayedProducts] = useState([]); // Products to show on current page
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
@@ -18,18 +20,18 @@ const MarketPlace = () => {
     pages: 1,
   });
 
-  // Fetch products from API
+  // Fetch ALL products from API (no pagination)
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
         const authToken = localStorage.getItem("authToken");
 
-        let url = `http://localhost:5000/product?page=${pagination.page}&limit=${pagination.limit}`;
+        let url = `http://localhost:5000/product/all`;
         if (searchTerm.trim()) {
-          url = `http://localhost:5000/product/search/${encodeURIComponent(
+          url = `http://localhost:5000/product/search-all/${encodeURIComponent(
             searchTerm.trim()
-          )}?page=${pagination.page}&limit=${pagination.limit}`;
+          )}`;
         }
 
         const response = await fetch(url, {
@@ -43,29 +45,18 @@ const MarketPlace = () => {
         }
 
         const data = await response.json();
-        setProducts(data.products);
-        setPagination((prev) => ({
-          ...prev,
-          total: data.pagination?.total || 0,
-          pages: data.pagination?.pages || 1,
-        }));
+        setProducts(data.products || []);
         setError(null);
       } catch (err) {
         setError(err.message);
         setProducts([]);
-        setPagination({
-          page: 1,
-          limit: 10,
-          total: 0,
-          pages: 1,
-        });
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
-  }, [searchTerm, pagination.page, pagination.limit]);
+  }, [searchTerm]);
 
   // Calculate price range when products change
   useEffect(() => {
@@ -77,6 +68,46 @@ const MarketPlace = () => {
     }
   }, [products]);
 
+  // Apply filters whenever products or filter criteria change
+  useEffect(() => {
+    const filtered = products.filter((product) => {
+      const matchesType =
+        selectedType === "all" || product.type === selectedType;
+      const matchesVendor =
+        selectedVendor === "all" ||
+        product.vendor.CompanyName === selectedVendor;
+      const matchesPrice =
+        product.price >= priceRange[0] && product.price <= priceRange[1];
+
+      return matchesType && matchesVendor && matchesPrice;
+    });
+
+    // Sort featured products first
+    const sorted = [...filtered].sort((a, b) => {
+      if (a.isFeatured === b.isFeatured) return 0;
+      return a.isFeatured ? -1 : 1;
+    });
+
+    setFilteredProducts(sorted);
+
+    // Update pagination totals
+    const total = sorted.length;
+    const pages = Math.ceil(total / pagination.limit);
+    setPagination((prev) => ({
+      ...prev,
+      total,
+      pages,
+      page: 1, // Reset to first page when filters change
+    }));
+  }, [products, selectedType, selectedVendor, priceRange]);
+
+  // Apply pagination whenever filtered products or pagination changes
+  useEffect(() => {
+    const startIndex = (pagination.page - 1) * pagination.limit;
+    const endIndex = startIndex + pagination.limit;
+    setDisplayedProducts(filteredProducts.slice(startIndex, endIndex));
+  }, [filteredProducts, pagination.page, pagination.limit]);
+
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= pagination.pages) {
       setPagination((prev) => ({ ...prev, page: newPage }));
@@ -87,27 +118,9 @@ const MarketPlace = () => {
   const uniqueTypes = [...new Set(products.map((p) => p.type))];
   const uniqueVendors = [...new Set(products.map((p) => p.vendor.CompanyName))];
 
-  // Filter logic
-  const filteredProducts = products.filter((product) => {
-    const matchesType = selectedType === "all" || product.type === selectedType;
-    const matchesVendor =
-      selectedVendor === "all" || product.vendor.CompanyName === selectedVendor;
-    const matchesPrice =
-      product.price >= priceRange[0] && product.price <= priceRange[1];
-
-    return matchesType && matchesVendor && matchesPrice;
-  });
-
-  // Sort so featured products appear first
-  const finalProducts = filteredProducts.sort((a, b) => {
-    if (a.isFeatured === b.isFeatured) return 0;
-    return a.isFeatured ? -1 : 1;
-  });
-
   // Search handler
   const handleSearch = (e) => {
     e.preventDefault();
-    setPagination((prev) => ({ ...prev, page: 1 }));
     setSearchTerm(searchQuery);
   };
 
@@ -273,8 +286,8 @@ const MarketPlace = () => {
       {/* Product Grid */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {finalProducts.length > 0 ? (
-            finalProducts.map((product) => (
+          {displayedProducts.length > 0 ? (
+            displayedProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))
           ) : (
