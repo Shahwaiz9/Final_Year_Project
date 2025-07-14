@@ -41,7 +41,7 @@ const MarketPlace = () => {
         });
 
         if (!response.ok) {
-          throw new Error("Failed to fetch products");
+          throw new Error(response.message);
         }
 
         const data = await response.json();
@@ -135,7 +135,7 @@ const MarketPlace = () => {
   if (error) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="text-red-600 text-lg">{error}</div>
+        <div className="text-red-600 text-lg">{response.message}</div>
       </div>
     );
   }

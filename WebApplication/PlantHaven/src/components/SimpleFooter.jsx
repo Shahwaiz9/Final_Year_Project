@@ -5,8 +5,8 @@ import Playstore from "../assets/GooglePlayBadge.png";
 const SimpleFooter = () => {
   // Define footer navigation links
   const footerLinks = [
-    { name: "About Us", path: "/about" },
-    { name: "Contact Us", path: "/contact" },
+    // { name: "About Us", path: "/about" },
+    // { name: "Contact Us", path: "/contact" },
     { name: "Privacy Policy", path: "/privacy-policy" },
     { name: "Terms of Service", path: "/terms-of-service" },
   ];
@@ -63,7 +63,7 @@ const SimpleFooter = () => {
         </nav>
 
         {/*PlayStore Badge*/}
-        <div className="flex items-center justify-center mt-4 space-x-6">
+        {/* <div className="flex items-center justify-center mt-4 space-x-6">
           <h3 className="text-lg font-semibold text-gray-300">
             Download Our App
           </h3>
@@ -78,7 +78,7 @@ const SimpleFooter = () => {
               className="h-12 transition-all duration-300 transform hover:scale-110 hover:rotate-2 hover:shadow-lg"
             />
           </a>
-        </div>
+        </div> */}
         {/* Social Media Links */}
         {/* <div className="flex justify-center mt-8 space-x-6">
           {socialLinks.map((social, index) => (

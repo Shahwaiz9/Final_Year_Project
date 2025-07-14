@@ -222,7 +222,7 @@ const PlantHavenLanding = () => {
               </h3>
               <p className="text-gray-600">
                 Advanced machine learning algorithms identify plant diseases
-                with 99% accuracy in seconds.
+                with high accuracy in seconds.
               </p>
             </div>
 
